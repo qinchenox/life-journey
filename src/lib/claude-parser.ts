@@ -1,15 +1,18 @@
-import "server-only";
 import { ResumeData } from "./types";
-import { EMPTY_RESUME, CLAUDE_SYSTEM_PROMPT } from "./constants";
+import { EMPTY_RESUME } from "./constants";
 import { detectTheme } from "./themes";
+import { getAgent, DEFAULT_AGENT_ID } from "./agents";
 
 const BASE_URL = process.env.LLM_BASE_URL || "https://dashscope.aliyuncs.com/compatible-mode/v1";
 const API_KEY = process.env.ANTHROPIC_API_KEY || "";
 const MODEL = process.env.LLM_MODEL || "qwen-plus";
 
 export async function parseResumeWithClaude(
-  rawText: string
+  rawText: string,
+  agentId?: string
 ): Promise<{ data: ResumeData; warnings: string[] }> {
+  const agent = getAgent(agentId || DEFAULT_AGENT_ID);
+
   const response = await fetch(`${BASE_URL}/chat/completions`, {
     method: "POST",
     headers: {
@@ -19,10 +22,10 @@ export async function parseResumeWithClaude(
     body: JSON.stringify({
       model: MODEL,
       max_tokens: 4096,
-      temperature: 0,
+      temperature: 0.3,
       messages: [
-        { role: "system", content: CLAUDE_SYSTEM_PROMPT },
-        { role: "user", content: `请解析以下简历文本：\n\n${rawText}` },
+        { role: "system", content: agent.systemPrompt },
+        { role: "user", content: `请解析以下简历文本，按照上述角色定位和优化原则进行润色：\n\n${rawText}` },
       ],
     }),
   });
@@ -37,7 +40,6 @@ export async function parseResumeWithClaude(
   };
   const text = json.choices?.[0]?.message?.content || "";
 
-  // Extract JSON from response
   const jsonMatch =
     text.match(/```(?:json)?\n?([\s\S]*?)\n?```/) ||
     text.match(/(\{[\s\S]*\})/);
@@ -89,11 +91,8 @@ function mergeWithDefaults(
   merged.education = Array.isArray(parsed.education) ? parsed.education : [];
   merged.projects = Array.isArray(parsed.projects) ? parsed.projects : [];
   merged.languages = Array.isArray(parsed.languages) ? parsed.languages : [];
-  merged.certifications = Array.isArray(parsed.certifications)
-    ? parsed.certifications
-    : [];
+  merged.certifications = Array.isArray(parsed.certifications) ? parsed.certifications : [];
 
-  // Auto-detect theme based on title, summary, and skills
   const allSkills = merged.skills.flatMap((s) => s.items);
   merged.themeId = detectTheme(merged.basics.title, merged.basics.summary, allSkills);
 

@@ -4,6 +4,7 @@ import { useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useResumeStore } from "@/store/resume-store";
 import { UploadStatus } from "./UploadStatus";
+import { AgentSelector } from "@/components/AgentSelector";
 import { ParseResponse } from "@/lib/types";
 
 export function FileDropZone() {
@@ -17,6 +18,9 @@ export function FileDropZone() {
   const storeSetStatus = useResumeStore((s) => s.setStatus);
   const storeSetError = useResumeStore((s) => s.setError);
   const storeSetWarnings = useResumeStore((s) => s.setWarnings);
+  const agentId = useResumeStore((s) => s.agentId);
+  const setAgentId = useResumeStore((s) => s.setAgentId);
+  const saveToServer = useResumeStore((s) => s.saveToServer);
 
   const handleFile = useCallback((f: File) => {
     const allowed = [
@@ -52,6 +56,7 @@ export function FileDropZone() {
 
     const formData = new FormData();
     formData.append("file", file);
+    formData.append("agentId", agentId);
 
     try {
       const res = await fetch("/api/parse", {
@@ -72,7 +77,8 @@ export function FileDropZone() {
           storeSetWarnings(json.warnings);
         }
         setStatus("parsing");
-        // Navigate to edit page
+        // Auto-save to server if logged in
+        saveToServer();
         router.push("/edit");
       }
     } catch {
@@ -88,6 +94,10 @@ export function FileDropZone() {
 
   return (
     <div className="max-w-xl mx-auto">
+      <div className="mb-6">
+        <AgentSelector value={agentId} onChange={setAgentId} />
+      </div>
+
       <div
         onDragOver={(e) => {
           e.preventDefault();
@@ -149,7 +159,7 @@ export function FileDropZone() {
         <button
           onClick={handleSubmit}
           disabled={status === "submitting"}
-          className="mt-6 w-full py-3 bg-[#0a0a0a] text-white font-medium rounded-lg hover:bg-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="mt-6 w-full py-3 bg-neutral-900 text-white font-medium rounded-lg hover:bg-neutral-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {status === "submitting" ? (
             <span className="flex items-center justify-center gap-2">

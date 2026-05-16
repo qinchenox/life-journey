@@ -6,19 +6,47 @@ import { ResumeData, ResumeBasics, SkillCategory, ExperienceEntry, EducationEntr
 import { EMPTY_RESUME } from "@/lib/constants";
 import { nanoid } from "nanoid";
 
+interface UserInfo {
+  id: string;
+  email: string;
+  name: string;
+}
+
+interface ResumeMeta {
+  id: string;
+  name: string;
+  agentId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 interface ResumeStore {
   data: ResumeData;
   status: "empty" | "uploading" | "parsing" | "ready" | "error";
   error: string | null;
   warnings: string[];
+  agentId: string;
+
+  // Auth
+  user: UserInfo | null;
+  setUser: (user: UserInfo | null) => void;
+
+  // History
+  resumeList: ResumeMeta[];
+  setResumeList: (list: ResumeMeta[]) => void;
+  loadResumeHistory: () => Promise<void>;
 
   setData: (data: ResumeData) => void;
   setStatus: (status: ResumeStore["status"]) => void;
   setError: (error: string | null) => void;
   setWarnings: (warnings: string[]) => void;
+  setAgentId: (id: string) => void;
 
+  // Auto-save after data changes
+  saveToServer: () => Promise<void>;
+
+  // Resume CRUD
   updateBasics: (field: keyof ResumeBasics, value: string) => void;
-  setTheme: (themeId: string) => void;
 
   addSkillCategory: () => void;
   removeSkillCategory: (id: string) => void;
@@ -44,6 +72,8 @@ interface ResumeStore {
   removeCertification: (id: string) => void;
   updateCertification: (id: string, field: string, value: string) => void;
 
+  setTheme: (themeId: string) => void;
+
   reset: () => void;
 }
 
@@ -56,11 +86,38 @@ const emptyCertification = (): CertificationEntry => ({ id: nanoid(8), name: "",
 
 export const useResumeStore = create<ResumeStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       data: EMPTY_RESUME,
       status: "empty",
       error: null,
       warnings: [],
+      agentId: "general-allround",
+      user: null,
+      resumeList: [],
+
+      setUser: (user) => set({ user }),
+      setResumeList: (resumeList) => set({ resumeList }),
+      setAgentId: (agentId) => set({ agentId }),
+
+      loadResumeHistory: async () => {
+        try {
+          const res = await fetch("/api/resumes");
+          const json = await res.json();
+          if (json.resumes) set({ resumeList: json.resumes });
+        } catch {}
+      },
+
+      saveToServer: async () => {
+        const { user, data, agentId } = get();
+        if (!user) return;
+        try {
+          await fetch("/api/resumes", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ data, agentId }),
+          });
+        } catch {}
+      },
 
       setData: (data) => set({ data, status: "ready", error: null }),
       setStatus: (status) => set({ status }),
@@ -76,12 +133,7 @@ export const useResumeStore = create<ResumeStore>()(
         set((s) => ({ data: { ...s.data, skills: s.data.skills.filter((sk) => sk.id !== id) } })),
       updateSkillCategory: (id, field, value) =>
         set((s) => ({
-          data: {
-            ...s.data,
-            skills: s.data.skills.map((sk) =>
-              sk.id === id ? { ...sk, [field]: value } : sk
-            ),
-          },
+          data: { ...s.data, skills: s.data.skills.map((sk) => (sk.id === id ? { ...sk, [field]: value } : sk)) },
         })),
 
       addExperience: () =>
@@ -90,12 +142,7 @@ export const useResumeStore = create<ResumeStore>()(
         set((s) => ({ data: { ...s.data, experience: s.data.experience.filter((e) => e.id !== id) } })),
       updateExperience: (id, field, value) =>
         set((s) => ({
-          data: {
-            ...s.data,
-            experience: s.data.experience.map((e) =>
-              e.id === id ? { ...e, [field]: value } : e
-            ),
-          },
+          data: { ...s.data, experience: s.data.experience.map((e) => (e.id === id ? { ...e, [field]: value } : e)) },
         })),
 
       addEducation: () =>
@@ -104,12 +151,7 @@ export const useResumeStore = create<ResumeStore>()(
         set((s) => ({ data: { ...s.data, education: s.data.education.filter((e) => e.id !== id) } })),
       updateEducation: (id, field, value) =>
         set((s) => ({
-          data: {
-            ...s.data,
-            education: s.data.education.map((e) =>
-              e.id === id ? { ...e, [field]: value } : e
-            ),
-          },
+          data: { ...s.data, education: s.data.education.map((e) => (e.id === id ? { ...e, [field]: value } : e)) },
         })),
 
       addProject: () =>
@@ -118,12 +160,7 @@ export const useResumeStore = create<ResumeStore>()(
         set((s) => ({ data: { ...s.data, projects: s.data.projects.filter((p) => p.id !== id) } })),
       updateProject: (id, field, value) =>
         set((s) => ({
-          data: {
-            ...s.data,
-            projects: s.data.projects.map((p) =>
-              p.id === id ? { ...p, [field]: value } : p
-            ),
-          },
+          data: { ...s.data, projects: s.data.projects.map((p) => (p.id === id ? { ...p, [field]: value } : p)) },
         })),
 
       addLanguage: () =>
@@ -132,12 +169,7 @@ export const useResumeStore = create<ResumeStore>()(
         set((s) => ({ data: { ...s.data, languages: s.data.languages.filter((l) => l.id !== id) } })),
       updateLanguage: (id, field, value) =>
         set((s) => ({
-          data: {
-            ...s.data,
-            languages: s.data.languages.map((l) =>
-              l.id === id ? { ...l, [field]: value } : l
-            ),
-          },
+          data: { ...s.data, languages: s.data.languages.map((l) => (l.id === id ? { ...l, [field]: value } : l)) },
         })),
 
       addCertification: () =>
@@ -146,22 +178,21 @@ export const useResumeStore = create<ResumeStore>()(
         set((s) => ({ data: { ...s.data, certifications: s.data.certifications.filter((c) => c.id !== id) } })),
       updateCertification: (id, field, value) =>
         set((s) => ({
-          data: {
-            ...s.data,
-            certifications: s.data.certifications.map((c) =>
-              c.id === id ? { ...c, [field]: value } : c
-            ),
-          },
+          data: { ...s.data, certifications: s.data.certifications.map((c) => (c.id === id ? { ...c, [field]: value } : c)) },
         })),
 
-      setTheme: (themeId) =>
-        set((s) => ({ data: { ...s.data, themeId } })),
+      setTheme: (themeId) => set((s) => ({ data: { ...s.data, themeId } })),
 
       reset: () => set({ data: EMPTY_RESUME, status: "empty", error: null, warnings: [] }),
     }),
     {
       name: "personal-chronicle-resume",
       storage: createJSONStorage(() => sessionStorage),
+      partialize: (state) => ({
+        data: state.data,
+        status: state.status,
+        agentId: state.agentId,
+      }),
     }
   )
 );

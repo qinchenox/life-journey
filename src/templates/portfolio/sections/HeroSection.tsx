@@ -5,33 +5,31 @@ interface HeroSectionProps {
 }
 
 export function HeroSection({ basics }: HeroSectionProps) {
+  const contacts = [
+    basics.email ? { href: `mailto:${basics.email}`, label: basics.email } : null,
+    basics.phone ? { href: null, label: basics.phone } : null,
+    basics.location ? { href: null, label: basics.location } : null,
+    basics.website ? { href: basics.website, label: basics.website.replace(/^https?:\/\//, "") } : null,
+  ].filter(Boolean);
+
   return (
-    <header className="mb-16">
-      <h1 className="text-4xl font-bold tracking-tight text-neutral-900 mb-3">
+    <header className="mb-12">
+      <h1 className="text-[clamp(2rem,5vw,3rem)] font-bold tracking-tight text-neutral-900 leading-tight mb-1">
         {basics.name || "姓名"}
       </h1>
-      <p className="text-xl text-neutral-500 mb-4">{basics.title}</p>
-      {(basics.email || basics.phone || basics.location || basics.website) && (
-        <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-neutral-400">
-          {basics.email && (
-            <a
-              href={`mailto:${basics.email}`}
-              className="hover:text-accent transition-colors"
-            >
-              {basics.email}
-            </a>
-          )}
-          {basics.phone && <span>{basics.phone}</span>}
-          {basics.location && <span>{basics.location}</span>}
-          {basics.website && (
-            <a
-              href={basics.website}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-accent transition-colors"
-            >
-              {basics.website.replace(/^https?:\/\//, "")}
-            </a>
+      <p className="text-[clamp(1.1rem,2.5vw,1.35rem)] text-neutral-500 mb-4">
+        {basics.title}
+      </p>
+      {contacts.length > 0 && (
+        <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-neutral-400">
+          {contacts.map((c, i) =>
+            c!.href ? (
+              <a key={i} href={c!.href} target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors">
+                {c!.label}
+              </a>
+            ) : (
+              <span key={i}>{c!.label}</span>
+            )
           )}
         </div>
       )}

@@ -1,18 +1,13 @@
 export interface ThemeColors {
-  // 主色调
   accent: string;
   accentHover: string;
   accentLight: string;
-  // 背景
   bgPrimary: string;
   bgSecondary: string;
-  // 文字
   textPrimary: string;
   textSecondary: string;
   textMuted: string;
-  // 边框
   border: string;
-  // 标签/徽章
   tagBg: string;
   tagText: string;
 }
@@ -22,145 +17,170 @@ export interface ThemeConfig {
   name: string;
   description: string;
   colors: ThemeColors;
-  // 布局倾向
-  layout: "split" | "centered" | "sidebar";
-  // 字体偏好
-  fontPairing: "sans" | "serif-heading" | "mono-accent";
-  // 卡片圆角
+  layout: "centered" | "split";
+  fontPairing: "sans" | "serif" | "mono";
   radius: "sharp" | "rounded" | "pill";
-  // 暗色/亮色模式
   mode: "light" | "dark";
+  animation: "subtle" | "bold";
+  gradient: string;
+  glass: boolean;
 }
 
-// 行业关键词 → 主题 ID 映射
 export const INDUSTRY_THEME_MAP: Record<string, string> = {
-  // 科技/互联网
-  "技术": "tech-dark",
-  "开发": "tech-dark",
-  "软件": "tech-dark",
-  "工程师": "tech-dark",
-  "前端": "tech-dark",
-  "后端": "tech-dark",
-  "全栈": "tech-dark",
-  "程序员": "tech-dark",
-  "IT": "tech-dark",
-  "互联网": "tech-dark",
-  "AI": "tech-ai",
-  "人工智能": "tech-ai",
-  "机器学习": "tech-ai",
-  "数据": "tech-ai",
-  "算法": "tech-ai",
-
-  // 设计/创意
-  "设计": "creative",
-  "UI": "creative",
-  "UX": "creative",
-  "创意": "creative",
-  "视觉": "creative",
-  "品牌": "creative",
-  "艺术": "creative",
-  "多媒体": "creative",
-  "视频": "creative",
-
-  // 金融/商业
-  "金融": "finance",
-  "银行": "finance",
-  "证券": "finance",
-  "投资": "finance",
-  "会计": "finance",
-  "财务": "finance",
-  "保险": "finance",
-  "商业": "professional",
-  "管理": "professional",
-  "咨询": "professional",
-  "顾问": "professional",
-  "行政": "professional",
-  "HR": "professional",
-  "人力资源": "professional",
-  "法务": "professional",
-  "法律": "professional",
-  "律师": "professional",
-
-  // 教育/学术
-  "教育": "education",
-  "教师": "education",
-  "教授": "education",
-  "讲师": "education",
-  "培训": "education",
-  "学术": "education",
-  "研究": "education",
-  "科研": "education",
-
-  // 医疗/健康
-  "医疗": "healthcare",
-  "医生": "healthcare",
-  "护士": "healthcare",
-  "健康": "healthcare",
-  "医药": "healthcare",
-  "护理": "healthcare",
-
-  // 销售/市场
-  "销售": "sales",
-  "市场": "sales",
-  "营销": "sales",
-  "运营": "sales",
-  "电商": "sales",
-  "商务": "sales",
-  "客户": "sales",
-
-  // 制造/工程
-  "制造": "industrial",
-  "工程": "industrial",
-  "机械": "industrial",
-  "建筑": "industrial",
-  "电气": "industrial",
-  "生产": "industrial",
-  "质量": "industrial",
-
-  // 媒体/传播
-  "媒体": "media",
-  "记者": "media",
-  "编辑": "media",
-  "传播": "media",
-  "公关": "media",
-  "广告": "media",
-  "文案": "media",
+  "技术": "cyber",
+  "开发": "cyber",
+  "软件": "cyber",
+  "工程师": "cyber",
+  "前端": "cyber",
+  "后端": "cyber",
+  "全栈": "cyber",
+  "程序员": "cyber",
+  "IT": "cyber",
+  "AI": "cyber",
+  "人工智能": "cyber",
+  "机器学习": "cyber",
+  "数据": "cyber",
+  "算法": "cyber",
+  "设计": "aurora",
+  "UI": "aurora",
+  "UX": "aurora",
+  "创意": "aurora",
+  "视觉": "aurora",
+  "品牌": "aurora",
+  "艺术": "aurora",
+  "金融": "slate",
+  "银行": "slate",
+  "投资": "slate",
+  "管理": "slate",
+  "咨询": "slate",
+  "商务": "slate",
+  "教育": "zen",
+  "教师": "zen",
+  "教授": "zen",
+  "学术": "zen",
+  "研究": "zen",
+  "媒体": "zen",
+  "编辑": "zen",
+  "文案": "zen",
+  "医疗": "slate",
+  "健康": "slate",
 };
 
 export const THEMES: Record<string, ThemeConfig> = {
-  "tech-dark": {
-    id: "tech-dark",
-    name: "科技暗色",
-    description: "极客风格，深色背景配霓虹点缀，适合技术/开发岗位",
+  mono: {
+    id: "mono",
+    name: "极简黑白",
+    description: "克制留白，黑白灰无级过渡，适合注重内容表达的岗位",
     colors: {
-      accent: "#3b82f6",
-      accentHover: "#2563eb",
-      accentLight: "#dbeafe",
-      bgPrimary: "#0f172a",
-      bgSecondary: "#1e293b",
-      textPrimary: "#f1f5f9",
-      textSecondary: "#94a3b8",
-      textMuted: "#64748b",
-      border: "#334155",
-      tagBg: "#1e293b",
-      tagText: "#93c5fd",
+      accent: "#1a1a1a",
+      accentHover: "#000000",
+      accentLight: "#f5f5f5",
+      bgPrimary: "#ffffff",
+      bgSecondary: "#fafafa",
+      textPrimary: "#171717",
+      textSecondary: "#525252",
+      textMuted: "#a3a3a3",
+      border: "#e5e5e5",
+      tagBg: "#f5f5f5",
+      tagText: "#404040",
     },
     layout: "centered",
-    fontPairing: "mono-accent",
-    radius: "rounded",
-    mode: "dark",
+    fontPairing: "sans",
+    radius: "sharp",
+    mode: "light",
+    animation: "subtle",
+    gradient: "none",
+    glass: false,
   },
 
-  "tech-light": {
-    id: "tech-light",
-    name: "科技亮色",
-    description: "干净简洁，白底蓝调，适合通用技术岗位",
+  cyber: {
+    id: "cyber",
+    name: "赛博霓虹",
+    description: "深色背景 + 青紫霓虹点缀，科技感与未来感并存",
     colors: {
-      accent: "#0066ff",
-      accentHover: "#0052cc",
-      accentLight: "#e6f0ff",
+      accent: "#06d6a0",
+      accentHover: "#05b88a",
+      accentLight: "rgba(6,214,160,0.12)",
+      bgPrimary: "#0a0e17",
+      bgSecondary: "#111827",
+      textPrimary: "#f0f4ff",
+      textSecondary: "#94a3b8",
+      textMuted: "#475569",
+      border: "#1e293b",
+      tagBg: "rgba(6,214,160,0.1)",
+      tagText: "#06d6a0",
+    },
+    layout: "split",
+    fontPairing: "mono",
+    radius: "sharp",
+    mode: "dark",
+    animation: "bold",
+    gradient: "radial-gradient(ellipse 80% 50% at 20% 0%, rgba(6,214,160,0.06) 0%, transparent 60%)",
+    glass: true,
+  },
+
+  zen: {
+    id: "zen",
+    name: "禅意东方",
+    description: "暖纸底色配墨绿点缀，温润内敛，适合教育/文化领域",
+    colors: {
+      accent: "#2d6a4f",
+      accentHover: "#1b4332",
+      accentLight: "#d8f3dc",
+      bgPrimary: "#fefcf5",
+      bgSecondary: "#f7f3e8",
+      textPrimary: "#292524",
+      textSecondary: "#57534e",
+      textMuted: "#a8a29e",
+      border: "#e7e0d8",
+      tagBg: "#f0e8d8",
+      tagText: "#2d6a4f",
+    },
+    layout: "centered",
+    fontPairing: "serif",
+    radius: "rounded",
+    mode: "light",
+    animation: "subtle",
+    gradient: "none",
+    glass: false,
+  },
+
+  aurora: {
+    id: "aurora",
+    name: "极光渐变",
+    description: "现代 SaaS 风格，柔和渐变 + 玻璃拟态，适合设计/创意岗位",
+    colors: {
+      accent: "#6366f1",
+      accentHover: "#4f46e5",
+      accentLight: "#eef2ff",
       bgPrimary: "#ffffff",
       bgSecondary: "#f8fafc",
+      textPrimary: "#0f172a",
+      textSecondary: "#475569",
+      textMuted: "#94a3b8",
+      border: "#e2e8f0",
+      tagBg: "#eef2ff",
+      tagText: "#4338ca",
+    },
+    layout: "split",
+    fontPairing: "sans",
+    radius: "pill",
+    mode: "light",
+    animation: "bold",
+    gradient: "linear-gradient(135deg, #f0f4ff 0%, #fdf2f8 50%, #f0fdf4 100%)",
+    glass: true,
+  },
+
+  slate: {
+    id: "slate",
+    name: "沉稳商务",
+    description: "深海蓝灰调，专业可信赖，适合金融/管理/医疗岗位",
+    colors: {
+      accent: "#1e40af",
+      accentHover: "#1e3a8a",
+      accentLight: "#dbeafe",
+      bgPrimary: "#ffffff",
+      bgSecondary: "#f1f5f9",
       textPrimary: "#0f172a",
       textSecondary: "#475569",
       textMuted: "#94a3b8",
@@ -172,228 +192,20 @@ export const THEMES: Record<string, ThemeConfig> = {
     fontPairing: "sans",
     radius: "rounded",
     mode: "light",
-  },
-
-  "tech-ai": {
-    id: "tech-ai",
-    name: "AI 智慧",
-    description: "渐进紫调，数据感与现代感并存，适合 AI/数据科学岗位",
-    colors: {
-      accent: "#7c3aed",
-      accentHover: "#6d28d9",
-      accentLight: "#ede9fe",
-      bgPrimary: "#0a0a0f",
-      bgSecondary: "#1a1a2e",
-      textPrimary: "#f0e6ff",
-      textSecondary: "#a78bfa",
-      textMuted: "#6d6d8a",
-      border: "#2a2a3e",
-      tagBg: "#1e1b4b",
-      tagText: "#c4b5fd",
-    },
-    layout: "centered",
-    fontPairing: "mono-accent",
-    radius: "sharp",
-    mode: "dark",
-  },
-
-  creative: {
-    id: "creative",
-    name: "创意设计",
-    description: "大胆配色，视觉张力强，适合设计/创意类岗位",
-    colors: {
-      accent: "#ec4899",
-      accentHover: "#db2777",
-      accentLight: "#fce7f3",
-      bgPrimary: "#fafafa",
-      bgSecondary: "#f4f4f5",
-      textPrimary: "#18181b",
-      textSecondary: "#52525b",
-      textMuted: "#a1a1aa",
-      border: "#e4e4e7",
-      tagBg: "#fce7f3",
-      tagText: "#be185d",
-    },
-    layout: "split",
-    fontPairing: "serif-heading",
-    radius: "pill",
-    mode: "light",
-  },
-
-  finance: {
-    id: "finance",
-    name: "金融经典",
-    description: "沉稳专业，海军蓝配金色点缀，适合金融/投资岗位",
-    colors: {
-      accent: "#b8860b",
-      accentHover: "#9a720c",
-      accentLight: "#fef9c3",
-      bgPrimary: "#ffffff",
-      bgSecondary: "#f8fafc",
-      textPrimary: "#1e293b",
-      textSecondary: "#475569",
-      textMuted: "#94a3b8",
-      border: "#e2e8f0",
-      tagBg: "#f1f5f9",
-      tagText: "#92400e",
-    },
-    layout: "centered",
-    fontPairing: "serif-heading",
-    radius: "sharp",
-    mode: "light",
-  },
-
-  professional: {
-    id: "professional",
-    name: "专业商务",
-    description: "利落稳重，深灰与蓝色点缀，适合管理/咨询岗位",
-    colors: {
-      accent: "#1e40af",
-      accentHover: "#1e3a8a",
-      accentLight: "#dbeafe",
-      bgPrimary: "#ffffff",
-      bgSecondary: "#f8fafc",
-      textPrimary: "#1e293b",
-      textSecondary: "#475569",
-      textMuted: "#94a3b8",
-      border: "#e2e8f0",
-      tagBg: "#f1f5f9",
-      tagText: "#1e3a8a",
-    },
-    layout: "sidebar",
-    fontPairing: "sans",
-    radius: "sharp",
-    mode: "light",
-  },
-
-  education: {
-    id: "education",
-    name: "学术教育",
-    description: "温润亲和，暖棕配墨绿，适合教育/科研岗位",
-    colors: {
-      accent: "#0d9488",
-      accentHover: "#0f766e",
-      accentLight: "#ccfbf1",
-      bgPrimary: "#fffbeb",
-      bgSecondary: "#fef3c7",
-      textPrimary: "#292524",
-      textSecondary: "#57534e",
-      textMuted: "#a8a29e",
-      border: "#e7e5e4",
-      tagBg: "#fef3c7",
-      tagText: "#115e59",
-    },
-    layout: "centered",
-    fontPairing: "serif-heading",
-    radius: "rounded",
-    mode: "light",
-  },
-
-  healthcare: {
-    id: "healthcare",
-    name: "医疗健康",
-    description: "洁净安宁，浅蓝白色调，适合医疗/健康岗位",
-    colors: {
-      accent: "#0891b2",
-      accentHover: "#0e7490",
-      accentLight: "#ecfeff",
-      bgPrimary: "#ffffff",
-      bgSecondary: "#f0f9ff",
-      textPrimary: "#164e63",
-      textSecondary: "#0e7490",
-      textMuted: "#67b8c9",
-      border: "#cffafe",
-      tagBg: "#ecfeff",
-      tagText: "#155e75",
-    },
-    layout: "centered",
-    fontPairing: "sans",
-    radius: "rounded",
-    mode: "light",
-  },
-
-  sales: {
-    id: "sales",
-    name: "活力商务",
-    description: "热情洋溢，橙色点缀与暖灰背景，适合销售/市场岗位",
-    colors: {
-      accent: "#ea580c",
-      accentHover: "#c2410c",
-      accentLight: "#fff7ed",
-      bgPrimary: "#ffffff",
-      bgSecondary: "#fafaf9",
-      textPrimary: "#292524",
-      textSecondary: "#57534e",
-      textMuted: "#a8a29e",
-      border: "#e7e5e4",
-      tagBg: "#fff7ed",
-      tagText: "#9a3412",
-    },
-    layout: "split",
-    fontPairing: "sans",
-    radius: "rounded",
-    mode: "light",
-  },
-
-  industrial: {
-    id: "industrial",
-    name: "工业工程",
-    description: "稳重可靠，铁灰配橙色点缀，适合工程/制造岗位",
-    colors: {
-      accent: "#dc2626",
-      accentHover: "#b91c1c",
-      accentLight: "#fef2f2",
-      bgPrimary: "#ffffff",
-      bgSecondary: "#fafafa",
-      textPrimary: "#1c1917",
-      textSecondary: "#57534e",
-      textMuted: "#a8a29e",
-      border: "#e7e5e4",
-      tagBg: "#fafaf9",
-      tagText: "#7f1d1d",
-    },
-    layout: "centered",
-    fontPairing: "sans",
-    radius: "sharp",
-    mode: "light",
-  },
-
-  media: {
-    id: "media",
-    name: "媒体传播",
-    description: "醒目雅致，墨绿与暗红搭配，适合媒体/编辑岗位",
-    colors: {
-      accent: "#b91c1c",
-      accentHover: "#991b1b",
-      accentLight: "#fef2f2",
-      bgPrimary: "#fefefe",
-      bgSecondary: "#fafafa",
-      textPrimary: "#1c1917",
-      textSecondary: "#44403c",
-      textMuted: "#a8a29e",
-      border: "#e7e5e4",
-      tagBg: "#fafaf9",
-      tagText: "#7f1d1d",
-    },
-    layout: "split",
-    fontPairing: "serif-heading",
-    radius: "sharp",
-    mode: "light",
+    animation: "subtle",
+    gradient: "none",
+    glass: false,
   },
 };
 
-// 默认主题（无行业匹配时）
-export const DEFAULT_THEME_ID = "tech-light";
+export const DEFAULT_THEME_ID = "mono";
 
 export function detectTheme(title: string, summary: string, skills: string[]): string {
   const searchText = [title, summary, ...skills].join(" ").toLowerCase();
-
   let bestMatch = "";
   let bestScore = 0;
-
   for (const [keyword, themeId] of Object.entries(INDUSTRY_THEME_MAP)) {
     if (searchText.includes(keyword.toLowerCase())) {
-      // 更长的关键词匹配得分更高
       const score = keyword.length;
       if (score > bestScore) {
         bestScore = score;
@@ -401,6 +213,5 @@ export function detectTheme(title: string, summary: string, skills: string[]): s
       }
     }
   }
-
   return bestMatch || DEFAULT_THEME_ID;
 }

@@ -77,10 +77,12 @@ export async function POST(request: NextRequest) {
     // Truncate to control cost
     const truncatedText = rawText.slice(0, MAX_TEXT_LENGTH);
 
+    const agentId = formData.get("agentId") as string || undefined;
+
     // Parse with Claude
     let result: { data: import("@/lib/types").ResumeData; warnings: string[] };
     try {
-      result = await parseResumeWithClaude(truncatedText);
+      result = await parseResumeWithClaude(truncatedText, agentId);
     } catch (error) {
       console.error("Claude API error:", error);
       return NextResponse.json(
