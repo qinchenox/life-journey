@@ -2,7 +2,7 @@ import { SignJWT, jwtVerify } from "jose";
 import bcrypt from "bcryptjs";
 
 const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "personal-chronicle-secret-change-in-production"
+  process.env.JWT_SECRET || "life-journey-secret-change-in-production"
 );
 const TOKEN_EXPIRY = "7d";
 

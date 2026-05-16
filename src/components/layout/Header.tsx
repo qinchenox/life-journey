@@ -71,10 +71,10 @@ export function Header({ transparent }: HeaderProps) {
                 <path d="M14 18a4 4 0 1 1 8 0v2a2 2 0 0 1 4 0v6c0 5.523-4.477 10-10 10s-10-4.477-10-10v-6a2 2 0 1 1 4 0v-2a4 4 0 0 1 4 0v2" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                 <defs><linearGradient id="logo-sm-g" x1="0" y1="0" x2="48" y2="48"><stop offset="0%" stopColor="#6366f1"/><stop offset="100%" stopColor="#a855f7"/></linearGradient></defs>
               </svg>
-              个人简史
+              人生旅途
             </span>
           ) : (
-            "个人简史"
+            "人生旅途"
           )}
         </Link>
         <nav className="flex items-center gap-2 text-sm">

@@ -26,7 +26,7 @@ export function PortfolioTemplate({ data }: PortfolioTemplateProps) {
       {languages && languages.length > 0 && <LanguagesSection languages={languages} />}
       {certifications && certifications.length > 0 && <CertificationsSection certifications={certifications} />}
       <footer className="mt-16 pt-6 border-t text-center text-sm text-neutral-400">
-        Made with 个人简史
+        Made with 人生旅途
       </footer>
     </div>
   );

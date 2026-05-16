@@ -1,7 +1,7 @@
 {
-  "name": "personal-chronicle",
-  "version": "1.0.0",
-  "description": "个人简史 — 简历驱动的个人介绍网站生成器",
+  "name": "life-journey",
+  "version": "3.0.0",
+  "description": "人生旅途 — AI 驱动的个人品牌网站生成器，上传简历，智能润色，一键生成现代个人主页",
   "private": true,
   "scripts": {
     "dev": "next dev",

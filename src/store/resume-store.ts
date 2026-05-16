@@ -186,7 +186,7 @@ export const useResumeStore = create<ResumeStore>()(
       reset: () => set({ data: EMPTY_RESUME, status: "empty", error: null, warnings: [] }),
     }),
     {
-      name: "personal-chronicle-resume",
+      name: "life-journey-resume",
       storage: createJSONStorage(() => sessionStorage),
       partialize: (state) => ({
         data: state.data,

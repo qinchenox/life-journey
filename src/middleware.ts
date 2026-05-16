@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 
 const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "personal-chronicle-secret-change-in-production"
+  process.env.JWT_SECRET || "life-journey-secret-change-in-production"
 );
 
 // 不需要登录就能访问的路径

@@ -306,7 +306,7 @@ function renderBody(data: ResumeData): string {
         ${projectsHTML}
         ${isSplit ? "" : languagesHTML}
         ${isSplit ? "" : certsHTML}
-        <footer class="footer anim-in" style="animation-delay:0.8s">Made with 个人简史 · ${esc(t.name)}主题</footer>
+        <footer class="footer anim-in" style="animation-delay:0.8s">Made with 人生旅途 · ${esc(t.name)}主题</footer>
       </main>
     </div>`;
   }
@@ -325,7 +325,7 @@ function renderBody(data: ResumeData): string {
     ${projectsHTML}
     ${languagesHTML}
     ${certsHTML}
-    <footer class="footer anim-in" style="animation-delay:0.8s">Made with 个人简史 · ${esc(t.name)}主题</footer>
+    <footer class="footer anim-in" style="animation-delay:0.8s">Made with 人生旅途 · ${esc(t.name)}主题</footer>
   </div>`;
 }
 
