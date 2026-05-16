@@ -15,9 +15,9 @@ interface UserInfo {
 interface ResumeMeta {
   id: string;
   name: string;
-  agentId: string;
-  createdAt: string;
-  updatedAt: string;
+  agent_id: string;
+  created_at: string;
+  updated_at: string;
 }
 
 interface ResumeStore {
