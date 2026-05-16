@@ -7,47 +7,65 @@ import { AgentSelector } from "@/components/AgentSelector";
 import { useResumeStore } from "@/store/resume-store";
 import { useEffect, useRef, useState, useCallback } from "react";
 
-function LogoMark() {
+/* ── Premium Logo Mark ── */
+function LogoMark({ size = 48 }: { size?: number }) {
+  const s = size;
+  const r = s / 2;
   return (
-    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <rect width="48" height="48" rx="14" fill="url(#logo-g)" />
-      <path d="M14 18a4 4 0 1 1 8 0v2a2 2 0 0 1 4 0v6c0 5.523-4.477 10-10 10s-10-4.477-10-10v-6a2 2 0 1 1 4 0v-2a4 4 0 0 1 4 0v2" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-      <defs><linearGradient id="logo-g" x1="0" y1="0" x2="48" y2="48"><stop offset="0%" stopColor="#6366f1"/><stop offset="50%" stopColor="#8b5cf6"/><stop offset="100%" stopColor="#a855f7"/></linearGradient></defs>
+    <svg width={s} height={s} viewBox={`0 0 ${s} ${s}`} fill="none" aria-hidden="true">
+      {/* Outer ring glow */}
+      <circle cx={r} cy={r} r={r - 2} fill="url(#logo-bg)" opacity="0.12" />
+      {/* Ring */}
+      <circle cx={r} cy={r} r={r - 5} stroke="url(#logo-stroke)" strokeWidth="2.5" fill="none" />
+      {/* Journey path — abstract mountain & road */}
+      <path
+        d={`M${r * 0.35} ${r * 0.65} Q${r * 0.5} ${r * 0.3} ${r * 0.5} ${r * 0.45} Q${r * 0.5} ${r * 0.55} ${r * 0.65} ${r * 0.4}`}
+        stroke="url(#logo-stroke)"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
+      {/* Accent dot */}
+      <circle cx={r * 0.65} cy={r * 0.4} r="3.5" fill="#0d9488" />
+      <defs>
+        <linearGradient id="logo-bg" x1="0" y1="0" x2={s} y2={s}>
+          <stop offset="0%" stopColor="#0d9488" />
+          <stop offset="100%" stopColor="#5eead4" />
+        </linearGradient>
+        <linearGradient id="logo-stroke" x1="0" y1="0" x2={s} y2={s}>
+          <stop offset="0%" stopColor="#0f766e" />
+          <stop offset="50%" stopColor="#14b8a6" />
+          <stop offset="100%" stopColor="#5eead4" />
+        </linearGradient>
+      </defs>
     </svg>
   );
 }
 
+/* ── Typewriter ── */
 function TypewriterText({ texts, speed }: { texts: string[]; speed: number }) {
   const [idx, setIdx] = useState(0);
   const [charIdx, setCharIdx] = useState(0);
   const [deleting, setDeleting] = useState(false);
-
   useEffect(() => {
     const current = texts[idx];
     const timer = setTimeout(() => {
       if (!deleting) {
-        if (charIdx < current.length) {
-          setCharIdx((c) => c + 1);
-        } else {
-          setTimeout(() => setDeleting(true), 2000);
-        }
+        if (charIdx < current.length) setCharIdx((c) => c + 1);
+        else setTimeout(() => setDeleting(true), 2500);
       } else {
-        if (charIdx > 0) {
-          setCharIdx((c) => c - 1);
-        } else {
-          setDeleting(false);
-          setIdx((i) => (i + 1) % texts.length);
-        }
+        if (charIdx > 0) setCharIdx((c) => c - 1);
+        else { setDeleting(false); setIdx((i) => (i + 1) % texts.length); }
       }
     }, deleting ? speed / 2 : speed);
     return () => clearTimeout(timer);
   }, [charIdx, deleting, idx, texts, speed]);
-
-  return <span>{texts[idx].slice(0, charIdx)}<span className="animate-pulse">|</span></span>;
+  return <span>{texts[idx].slice(0, charIdx)}<span className="animate-pulse" style={{ color: "var(--accent, #0d9488)" }}>|</span></span>;
 }
 
+/* ── Hero ── */
 function HeroSection() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
   const [mouse, setMouse] = useState({ x: 0.5, y: 0.5 });
 
@@ -56,211 +74,149 @@ function HeroSection() {
     setMouse({ x: (e.clientX - rect.left) / rect.width, y: (e.clientY - rect.top) / rect.height });
   }, []);
 
-  // Particles
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    let w = (canvas.width = window.innerWidth);
-    let h = (canvas.height = window.innerHeight);
-    const particles: { x: number; y: number; r: number; vx: number; vy: number; a: number }[] = [];
-    for (let i = 0; i < 50; i++) {
-      particles.push({
-        x: Math.random() * w, y: Math.random() * h,
-        r: Math.random() * 1.5 + 0.3,
-        vx: (Math.random() - 0.5) * 0.3,
-        vy: (Math.random() - 0.5) * 0.3,
-        a: Math.random() * 0.6 + 0.15,
-      });
-    }
-
-    let animationId: number;
-    const animate = () => {
-      ctx.clearRect(0, 0, w, h);
-      for (const p of particles) {
-        p.x += p.vx; p.y += p.vy;
-        if (p.x < 0 || p.x > w) p.vx *= -1;
-        if (p.y < 0 || p.y > h) p.vy *= -1;
-        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255,255,255,${p.a})`; ctx.fill();
-      }
-      // Connect nearby particles
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const dx = particles[i].x - particles[j].x;
-          const dy = particles[i].y - particles[j].y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 120) {
-            ctx.beginPath(); ctx.moveTo(particles[i].x, particles[i].y); ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.strokeStyle = `rgba(255,255,255,${0.04 * (1 - dist / 120)})`; ctx.lineWidth = 0.5; ctx.stroke();
-          }
-        }
-      }
-      animationId = requestAnimationFrame(animate);
-    };
-
-    const handleResize = () => { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; };
-    window.addEventListener("resize", handleResize);
-    animate();
-    return () => { cancelAnimationFrame(animationId); window.removeEventListener("resize", handleResize); };
-  }, []);
-
-  const parallaxStyle = (factor: number) => ({
-    transform: `translate(${(mouse.x - 0.5) * factor}px, ${(mouse.y - 0.5) * factor}px)`,
-    transition: "transform 0.8s cubic-bezier(0.23, 1, 0.32, 1)",
+  const parallax = (f: number) => ({
+    transform: `translate(${(mouse.x - 0.5) * f}px, ${(mouse.y - 0.5) * f}px)`,
+    transition: "transform 1s cubic-bezier(0.23, 1, 0.32, 1)",
   });
 
   return (
-    <div ref={heroRef} onMouseMove={handleMouseMove} className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
-      {/* Animated gradient background */}
-      <div className="absolute inset-0 bg-[#0a0a14]">
+    <div ref={heroRef} onMouseMove={handleMouseMove} className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden select-none">
+
+      {/* ▸ Background — warm white + soft cyan glow */}
+      <div className="absolute inset-0" style={{ background: "#faf9f6" }}>
         <div className="absolute inset-0" style={{
-          background: "radial-gradient(ellipse 60% 50% at 30% 20%, rgba(99,102,241,0.25) 0%, transparent 55%), " +
-            "radial-gradient(ellipse 50% 60% at 70% 60%, rgba(139,92,246,0.2) 0%, transparent 55%), " +
-            "radial-gradient(ellipse 40% 40% at 50% 80%, rgba(6,214,160,0.1) 0%, transparent 50%)",
-          animation: "gradientShift 15s ease-in-out infinite",
+          background:
+            "radial-gradient(ellipse 45% 40% at 70% 15%, rgba(13,148,136,0.15) 0%, transparent 55%), " +
+            "radial-gradient(ellipse 50% 45% at 25% 80%, rgba(94,234,212,0.12) 0%, transparent 55%), " +
+            "radial-gradient(ellipse 35% 35% at 50% 50%, rgba(20,184,166,0.06) 0%, transparent 60%)",
+          animation: "gradientShift 18s ease-in-out infinite",
         }}/>
-        <div className="absolute inset-0 opacity-[0.025]" style={{
-          backgroundImage: "linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)",
-          backgroundSize: "60px 60px",
+        {/* Subtle dot grid */}
+        <div className="absolute inset-0" style={{
+          backgroundImage: "radial-gradient(circle, rgba(13,148,136,0.12) 1px, transparent 1px)",
+          backgroundSize: "40px 40px",
+          opacity: 0.4,
         }}/>
       </div>
 
-      {/* Particles canvas */}
-      <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none" aria-hidden="true"/>
-
-      {/* Parallax shapes */}
-      <div className="absolute w-[550px] h-[550px] rounded-full opacity-[0.05] pointer-events-none" style={{
-        background: "radial-gradient(circle, #818cf8, transparent 70%)",
-        top: "5%", left: "-12%", filter: "blur(80px)",
-        animation: "floatSlow 18s ease-in-out infinite",
-        ...parallaxStyle(-30),
+      {/* ▸ Floating blurred shapes — parallax */}
+      <div className="absolute w-[500px] h-[500px] rounded-full pointer-events-none" style={{
+        background: "radial-gradient(circle, rgba(94,234,212,0.18), transparent 70%)",
+        top: "8%", left: "-10%", filter: "blur(80px)", animation: "floatSlow 20s ease-in-out infinite",
+        ...parallax(-25),
       }}/>
-      <div className="absolute w-[420px] h-[420px] rounded-full opacity-[0.05] pointer-events-none" style={{
-        background: "radial-gradient(circle, #c084fc, transparent 70%)",
-        bottom: "10%", right: "-10%", filter: "blur(80px)",
-        animation: "floatSlow 22s ease-in-out infinite reverse",
-        ...parallaxStyle(25),
+      <div className="absolute w-[380px] h-[380px] rounded-full pointer-events-none" style={{
+        background: "radial-gradient(circle, rgba(13,148,136,0.14), transparent 70%)",
+        bottom: "15%", right: "-6%", filter: "blur(70px)", animation: "floatSlow 22s ease-in-out infinite reverse",
+        ...parallax(20),
       }}/>
-      <div className="absolute w-[300px] h-[300px] rounded-full opacity-[0.03] pointer-events-none" style={{
-        background: "radial-gradient(circle, #22d3ee, transparent 70%)",
-        top: "50%", left: "60%", filter: "blur(60px)",
-        animation: "floatSlow 16s ease-in-out infinite",
-        ...parallaxStyle(-20),
+      <div className="absolute w-[280px] h-[280px] rounded-full pointer-events-none" style={{
+        background: "radial-gradient(circle, rgba(20,184,166,0.1), transparent 70%)",
+        top: "55%", left: "55%", filter: "blur(60px)", animation: "floatSlow 16s ease-in-out infinite",
+        ...parallax(-15),
       }}/>
 
-      {/* Content */}
-      <div className="relative z-10 text-center px-6" style={parallaxStyle(-8)}>
+      {/* ▸ Content */}
+      <div className="relative z-10 text-center px-6" style={parallax(-6)}>
         {/* Logo */}
-        <div className="mb-8 flex justify-center">
+        <div className="mb-10 flex justify-center">
           <div className="relative group cursor-default">
-            {/* Glow ring */}
-            <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" style={{
-              background: "linear-gradient(135deg, rgba(99,102,241,0.4), rgba(168,85,247,0.4))",
-              filter: "blur(24px)", transform: "scale(1.4)",
-            }}/>
-            <div className="relative inline-flex items-center justify-center w-20 h-20 rounded-2xl" style={{
-              background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%)",
-              boxShadow: "0 0 80px rgba(99,102,241,0.3), 0 8px 32px rgba(0,0,0,0.3)",
-              animation: "logoFloat 6s ease-in-out infinite",
-            }}>
-              <LogoMark />
+            <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+              style={{ background: "rgba(13,148,136,0.12)", filter: "blur(30px)", transform: "scale(1.6)" }}/>
+            <div className="relative inline-flex items-center justify-center w-[90px] h-[90px] rounded-full"
+              style={{
+                background: "radial-gradient(circle at 35% 35%, rgba(255,255,255,0.9), rgba(240,253,250,0.6))",
+                boxShadow: "0 0 0 1px rgba(13,148,136,0.12), 0 8px 32px rgba(13,148,136,0.1), 0 2px 8px rgba(0,0,0,0.04)",
+                animation: "logoFloat 6s ease-in-out infinite",
+              }}>
+              <LogoMark size={52} />
             </div>
           </div>
         </div>
 
-        {/* Title */}
-        <h1 className="text-[#f8fafc] font-bold tracking-tight leading-none mb-5 select-none" style={{ fontSize: "clamp(2.8rem, 8vw, 5.2rem)", letterSpacing: "-0.04em" }}>
+        {/* Headline */}
+        <h1 className="font-bold tracking-tight leading-none mb-5"
+          style={{ fontSize: "clamp(2.8rem, 8vw, 5.2rem)", letterSpacing: "-0.04em", color: "#1e293b" }}>
           人生
-          <span className="bg-clip-text" style={{ background: "linear-gradient(135deg, #818cf8 0%, #c084fc 50%, #22d3ee 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+          <span className="bg-clip-text" style={{ background: "linear-gradient(135deg, #0f766e 0%, #14b8a6 40%, #5eead4 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
             旅途
           </span>
         </h1>
 
-        {/* Typewriter subtitle */}
-        <p className="max-w-lg mx-auto mb-10 select-none" style={{ fontSize: "clamp(1rem, 2.5vw, 1.2rem)", color: "rgba(255,255,255,0.55)", lineHeight: "1.8", minHeight: "2.5em" }}>
-          <TypewriterText texts={[
-            "AI 智能润色简历，生成现代个人主页",
-            "5 种 AI 风格，匹配你的职业定位",
-            "一键发布，扫码即可分享给世界",
-          ]} speed={80} />
+        {/* Subtitle — typewriter */}
+        <p className="max-w-lg mx-auto mb-10" style={{ fontSize: "clamp(1rem, 2.5vw, 1.2rem)", color: "#64748b", lineHeight: "1.8", minHeight: "2.5em" }}>
+          <TypewriterText texts={["AI 智能润色简历，生成现代个人主页","5 种 AI 风格，匹配你的职业定位","一键发布，扫码即可分享给世界"]} speed={80} />
         </p>
 
-        {/* CTA Buttons */}
+        {/* ▸ CTA — large, touch-friendly, visible interactive states */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          {/* Primary button — glow effect */}
           <button
             onClick={() => document.getElementById("upload-section")?.scrollIntoView({ behavior: "smooth" })}
-            className="group relative inline-flex items-center gap-3 px-8 py-4 rounded-full text-sm font-semibold transition-all duration-500 overflow-hidden"
-            style={{ color: "#fff" }}
+            className="group relative inline-flex items-center gap-2.5 px-9 py-4 rounded-full text-base font-semibold transition-all duration-300
+                       focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal-500
+                       active:scale-95"
+            style={{
+              background: "linear-gradient(135deg, #0f766e 0%, #14b8a6 50%, #2dd4bf 100%)",
+              color: "#fff",
+              boxShadow: "0 4px 20px rgba(13,148,136,0.25), 0 1px 3px rgba(0,0,0,0.06)",
+              minHeight: "52px",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "translateY(-2px)";
+              e.currentTarget.style.boxShadow = "0 8px 32px rgba(13,148,136,0.35), 0 2px 6px rgba(0,0,0,0.08)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "0 4px 20px rgba(13,148,136,0.25), 0 1px 3px rgba(0,0,0,0.06)";
+            }}
           >
-            {/* Animated background */}
-            <div className="absolute inset-0 rounded-full" style={{
-              background: "linear-gradient(135deg, #6366f1, #8b5cf6, #a855f7, #6366f1)",
-              backgroundSize: "300% 100%",
-              animation: "shimmer 4s ease-in-out infinite",
-            }}/>
-            {/* Glow */}
-            <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{
-              boxShadow: "0 0 40px rgba(99,102,241,0.5), 0 0 80px rgba(139,92,246,0.3)",
-            }}/>
-            {/* Hover scale */}
-            <span className="relative z-10 flex items-center gap-2 group-hover:scale-105 transition-transform duration-300">
-              开始创建
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="group-hover:translate-y-0.5 transition-transform duration-300">
-                <path d="m6 9 6 6 6-6"/>
-              </svg>
-            </span>
+            <span className="relative z-10">开始创建</span>
+            <svg className="relative z-10 group-hover:translate-x-0.5 transition-transform duration-300" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
           </button>
 
-          {/* Secondary — glass */}
           <button
             onClick={() => document.getElementById("upload-section")?.scrollIntoView({ behavior: "smooth" })}
-            className="inline-flex items-center gap-2 px-6 py-4 rounded-full text-sm font-medium transition-all duration-500 hover:-translate-y-0.5"
+            className="inline-flex items-center gap-2 px-7 py-4 rounded-full text-sm font-medium transition-all duration-300
+                       focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal-400
+                       hover:-translate-y-0.5 active:scale-95"
             style={{
-              background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)",
-              color: "rgba(255,255,255,0.7)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)",
+              background: "rgba(255,255,255,0.7)", border: "1px solid rgba(13,148,136,0.2)",
+              color: "#0f766e", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
+              minHeight: "52px",
             }}
           >
             了解更多
           </button>
         </div>
 
-        {/* Trust badges */}
-        <div className="mt-10 flex items-center justify-center gap-6 text-xs select-none" style={{ color: "rgba(255,255,255,0.3)" }}>
-          <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400/60"/> AI 智能润色</span>
-          <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-violet-400/60"/> 5 种风格</span>
-          <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-cyan-400/60"/> 一键发布</span>
+        {/* Trust row */}
+        <div className="mt-10 flex items-center justify-center gap-6 text-sm" style={{ color: "#94a3b8" }}>
+          <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full" style={{ background: "#2dd4bf" }}/> AI 智能润色</span>
+          <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full" style={{ background: "#14b8a6" }}/> 5 种风格</span>
+          <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full" style={{ background: "#0f766e" }}/> 一键发布</span>
         </div>
       </div>
 
-      {/* Scroll indicator */}
+      {/* Scroll hint */}
       <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2" style={{ animation: "fadeBounce 2s ease-in-out infinite" }}>
-        <span className="text-xs" style={{ color: "rgba(255,255,255,0.25)" }}>向下滚动</span>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" strokeLinecap="round">
-          <path d="M17 10 12 15 7 10"/>
-        </svg>
+        <span className="text-xs" style={{ color: "#94a3b8" }}>向下滚动</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round"><path d="M17 10 12 15 7 10"/></svg>
       </div>
     </div>
   );
 }
 
+/* ── Scroll Reveal ── */
 function ScrollReveal({ children, className }: { children: React.ReactNode; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
-
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) { setVisible(true); observer.unobserve(el); }
-    }, { threshold: 0.15 });
-    observer.observe(el);
-    return () => observer.disconnect();
+    const el = ref.current; if (!el) return;
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setVisible(true); obs.unobserve(el); } }, { threshold: 0.12 });
+    obs.observe(el); return () => obs.disconnect();
   }, []);
-
   return (
     <div ref={ref} className={`transition-all duration-700 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"} ${className || ""}`}>
       {children}
@@ -274,6 +230,7 @@ const features = [
   { icon: "🌐", title: "一键发布", desc: "生成现代设计个人主页，可部署至任意静态托管" },
 ];
 
+/* ── Page ── */
 export default function HomePage() {
   const status = useResumeStore((s) => s.status);
   const hasData = status === "ready";
@@ -283,22 +240,22 @@ export default function HomePage() {
   return (
     <>
       <Header transparent />
-      <main>
+      <main className="bg-[#faf9f6]">
         <HeroSection />
 
-        {/* Upload Section */}
-        <div id="upload-section" className="relative" style={{ background: "linear-gradient(180deg, #0a0a14 0%, #0f172a 28%, #f8fafc 28%)" }}>
+        {/* Upload panel */}
+        <div id="upload-section" className="relative" style={{ background: "linear-gradient(180deg, #faf9f6 0%, #f0fdfa 30%, #f8fafc 30%)" }}>
           <div className="mx-auto max-w-4xl px-6 pb-24">
             <ScrollReveal>
               <div className="rounded-3xl p-8 sm:p-12" style={{
-                background: "rgba(255,255,255,0.96)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)",
-                border: "1px solid rgba(255,255,255,0.6)", boxShadow: "0 4px 6px rgba(0,0,0,0.02), 0 24px 60px rgba(0,0,0,0.08)",
+                background: "rgba(255,255,255,0.85)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
+                border: "1px solid rgba(13,148,136,0.12)", boxShadow: "0 1px 3px rgba(0,0,0,0.03), 0 20px 50px rgba(0,0,0,0.05)",
               }}>
                 <div className="text-center mb-10">
-                  <h2 className="text-2xl sm:text-3xl font-bold text-neutral-900 mb-3 tracking-tight">
+                  <h2 className="text-2xl sm:text-3xl font-bold mb-3 tracking-tight" style={{ color: "#1e293b" }}>
                     只需一步，简历变主页
                   </h2>
-                  <p className="text-neutral-500 text-sm sm:text-base max-w-sm mx-auto">
+                  <p className="text-sm sm:text-base max-w-sm mx-auto" style={{ color: "#64748b" }}>
                     选择 AI 风格，拖拽上传，瞬间完成解析
                   </p>
                 </div>
@@ -309,15 +266,17 @@ export default function HomePage() {
 
                 {hasData ? (
                   <div className="text-center">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-50 border border-green-200 rounded-full text-green-700 text-sm mb-6">
-                      <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm mb-6" style={{ background: "rgba(13,148,136,0.08)", border: "1px solid rgba(13,148,136,0.15)", color: "#0f766e" }}>
+                      <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: "#14b8a6" }}/>
                       简历解析完成，数据已保存
                     </div>
                     <div className="flex gap-4 justify-center">
-                      <Link href="/edit" className="px-6 py-3 bg-neutral-900 text-white font-medium rounded-lg hover:bg-neutral-700 transition-all hover:-translate-y-0.5 hover:shadow-lg">
+                      <Link href="/edit" className="px-6 py-3 rounded-lg text-white font-medium transition-all hover:-translate-y-0.5 hover:shadow-lg active:scale-95"
+                        style={{ background: "#1e293b", minHeight: "48px", display: "inline-flex", alignItems: "center" }}>
                         编辑信息
                       </Link>
-                      <Link href="/preview" className="px-6 py-3 border border-neutral-300 text-neutral-700 font-medium rounded-lg hover:bg-neutral-50 hover:border-neutral-400 transition-all hover:-translate-y-0.5">
+                      <Link href="/preview" className="px-6 py-3 rounded-lg font-medium transition-all hover:-translate-y-0.5 active:scale-95"
+                        style={{ border: "1px solid #cbd5e1", color: "#475569", minHeight: "48px", display: "inline-flex", alignItems: "center" }}>
                         预览主页
                       </Link>
                     </div>
@@ -328,14 +287,14 @@ export default function HomePage() {
               </div>
             </ScrollReveal>
 
-            {/* Feature cards with scroll reveal */}
             <div className="mt-20 grid grid-cols-1 sm:grid-cols-3 gap-6">
-              {features.map((f, i) => (
-                <ScrollReveal key={f.title} className={`delay-${i * 100}`}>
-                  <div className="group text-center p-8 rounded-2xl border border-neutral-100 bg-white/80 backdrop-blur transition-all duration-500 hover:-translate-y-2 hover:shadow-xl hover:border-neutral-200 cursor-default">
+              {features.map((f) => (
+                <ScrollReveal key={f.title}>
+                  <div className="group text-center p-8 rounded-2xl border transition-all duration-500 hover:-translate-y-2 hover:shadow-lg cursor-default"
+                    style={{ background: "rgba(255,255,255,0.7)", borderColor: "rgba(13,148,136,0.1)" }}>
                     <div className="text-3xl mb-5 group-hover:scale-110 transition-transform duration-500">{f.icon}</div>
-                    <h3 className="text-base font-semibold text-neutral-800 mb-2">{f.title}</h3>
-                    <p className="text-sm text-neutral-400 leading-relaxed">{f.desc}</p>
+                    <h3 className="text-base font-semibold mb-2" style={{ color: "#1e293b" }}>{f.title}</h3>
+                    <p className="text-sm leading-relaxed" style={{ color: "#94a3b8" }}>{f.desc}</p>
                   </div>
                 </ScrollReveal>
               ))}

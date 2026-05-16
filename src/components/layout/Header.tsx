@@ -51,11 +51,11 @@ export function Header({ transparent }: HeaderProps) {
     return false;
   };
 
-  const textColor = transparent ? "text-white/80" : "text-neutral-900";
-  const mutedColor = transparent ? "text-white/40" : "text-neutral-400";
-  const borderColor = transparent ? "border-white/10" : "border-neutral-200";
+  const textColor = transparent ? "text-neutral-800" : "text-neutral-900";
+  const mutedColor = transparent ? "text-neutral-400" : "text-neutral-400";
+  const borderColor = transparent ? "border-transparent" : "border-neutral-200";
   const bgColor = transparent ? "bg-transparent" : "bg-white";
-  const hoverColor = transparent ? "hover:text-white" : "hover:text-accent";
+  const hoverColor = transparent ? "hover:text-teal-700" : "hover:text-accent";
 
   return (
     <header className={`${borderColor} ${bgColor} relative z-50 ${transparent ? "" : "border-b"}`}>
@@ -69,7 +69,7 @@ export function Header({ transparent }: HeaderProps) {
               <svg width="22" height="22" viewBox="0 0 48 48" fill="none" aria-hidden="true">
                 <rect width="48" height="48" rx="12" fill="url(#logo-sm-g)" />
                 <path d="M14 18a4 4 0 1 1 8 0v2a2 2 0 0 1 4 0v6c0 5.523-4.477 10-10 10s-10-4.477-10-10v-6a2 2 0 1 1 4 0v-2a4 4 0 0 1 4 0v2" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                <defs><linearGradient id="logo-sm-g" x1="0" y1="0" x2="48" y2="48"><stop offset="0%" stopColor="#6366f1"/><stop offset="100%" stopColor="#a855f7"/></linearGradient></defs>
+                <defs><linearGradient id="logo-sm-g" x1="0" y1="0" x2="48" y2="48"><stop offset="0%" stopColor="#0f766e"/><stop offset="100%" stopColor="#5eead4"/></linearGradient></defs>
               </svg>
               人生旅途
             </span>
@@ -87,9 +87,9 @@ export function Header({ transparent }: HeaderProps) {
                   className={`flex items-center gap-1.5 px-2 py-1 rounded transition-colors ${
                     i === currentStep
                       ? transparent
-                        ? "bg-white/10 text-white font-medium"
+                        ? "bg-teal-50 text-teal-700 font-medium"
                         : "bg-neutral-100 text-neutral-900 font-medium"
-                      : `${mutedColor} hover:text-${transparent ? "white" : "neutral-600"}`
+                      : `${mutedColor} hover:text-neutral-700`
                   }`}
                 >
                   <span
@@ -97,7 +97,7 @@ export function Header({ transparent }: HeaderProps) {
                       i === currentStep
                         ? "bg-accent text-white"
                         : transparent
-                          ? "bg-white/10 text-white/60"
+                          ? "bg-teal-100 text-teal-600"
                           : "bg-neutral-200 text-neutral-500"
                     }`}
                   >
@@ -107,7 +107,7 @@ export function Header({ transparent }: HeaderProps) {
                 </Link>
               ) : (
                 <span className={`flex items-center gap-1.5 px-2 py-1 cursor-not-allowed ${mutedColor}`}>
-                  <span className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-xs font-semibold ${transparent ? "bg-white/5 text-white/30" : "bg-neutral-100 text-neutral-300"}`}>
+                  <span className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-xs font-semibold ${transparent ? "bg-teal-50/50 text-teal-300" : "bg-neutral-100 text-neutral-300"}`}>
                     {step.num}
                   </span>
                   <span className="hidden sm:inline">{step.label}</span>
