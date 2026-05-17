@@ -4,7 +4,6 @@ import { useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useResumeStore } from "@/store/resume-store";
 import { UploadStatus } from "./UploadStatus";
-import { AgentSelector } from "@/components/AgentSelector";
 import { ParseResponse } from "@/lib/types";
 
 export function FileDropZone() {
@@ -19,7 +18,6 @@ export function FileDropZone() {
   const storeSetError = useResumeStore((s) => s.setError);
   const storeSetWarnings = useResumeStore((s) => s.setWarnings);
   const agentId = useResumeStore((s) => s.agentId);
-  const setAgentId = useResumeStore((s) => s.setAgentId);
   const saveToServer = useResumeStore((s) => s.saveToServer);
 
   const handleFile = useCallback((f: File) => {
@@ -94,10 +92,6 @@ export function FileDropZone() {
 
   return (
     <div className="max-w-xl mx-auto">
-      <div className="mb-6">
-        <AgentSelector value={agentId} onChange={setAgentId} />
-      </div>
-
       <div
         onDragOver={(e) => {
           e.preventDefault();
