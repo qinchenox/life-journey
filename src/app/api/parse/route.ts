@@ -2,9 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { extractText, detectMimeType } from "@/lib/text-extractor";
 import { parseResumeWithClaude } from "@/lib/claude-parser";
 import { ParseResponse } from "@/lib/types";
+import { getTokenFromRequest, verifyToken } from "@/lib/auth";
+import { getUserPlan, incrementParseCount, getGuestParseCount, incrementGuestParseCount } from "@/lib/db";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const MAX_TEXT_LENGTH = 15000;
+const FREE_LIMIT = 3;
 
 export async function POST(request: NextRequest) {
   try {
@@ -74,6 +77,43 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // ── Usage limit check ──
+    const token = getTokenFromRequest(request);
+    let plan = "free";
+    let parseCount = 0;
+
+    if (token) {
+      const jwtPayload = await verifyToken(token);
+      if (jwtPayload) {
+        const userPlan = getUserPlan(jwtPayload.userId);
+        if (userPlan) {
+          plan = userPlan.plan;
+          parseCount = userPlan.parseCount;
+        }
+      }
+    } else {
+      // Guest: track by IP-based guest ID
+      const guestId = request.headers.get("x-forwarded-for") || "local";
+      const count = getGuestParseCount(guestId);
+      if (count >= FREE_LIMIT) {
+        return NextResponse.json(
+          { success: false, error: "免费次数已用完，请注册登录后升级 Pro。", code: "LIMIT_REACHED" } satisfies ParseResponse,
+          { status: 402 }
+        );
+      }
+      incrementGuestParseCount(guestId);
+    }
+
+    if (token && plan === "free" && parseCount >= FREE_LIMIT) {
+      const jwtPayload = await verifyToken(token);
+      if (jwtPayload) {
+        return NextResponse.json(
+          { success: false, error: "免费次数已用完，请升级 Pro 继续使用。", code: "LIMIT_REACHED" } satisfies ParseResponse,
+          { status: 402 }
+        );
+      }
+    }
+
     // Truncate to control cost
     const truncatedText = rawText.slice(0, MAX_TEXT_LENGTH);
 
@@ -93,6 +133,12 @@ export async function POST(request: NextRequest) {
         } satisfies ParseResponse,
         { status: 502 }
       );
+    }
+
+    // Increment usage for logged-in users
+    if (token) {
+      const jwtPayload = await verifyToken(token);
+      if (jwtPayload) incrementParseCount(jwtPayload.userId);
     }
 
     return NextResponse.json({
