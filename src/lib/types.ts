@@ -73,3 +73,19 @@ export interface ParseResponse {
   code?: string;
   warnings?: string[];
 }
+
+export type ReportType = "project-case" | "industry-brief" | "whitepaper" | "job-material";
+
+export interface GeneratedReport {
+  id: string;
+  type: ReportType;
+  title: string;
+  content: string;
+  generatedAt: string;
+}
+
+export interface ReportsResponse {
+  success: boolean;
+  reports?: GeneratedReport[];
+  error?: string;
+}
