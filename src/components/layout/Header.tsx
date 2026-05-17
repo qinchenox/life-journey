@@ -115,10 +115,6 @@ export function Header({ transparent }: HeaderProps) {
               )}
             </div>
           ))}
-          <Link href="/pricing" className={`text-xs ${mutedColor} hover:text-${transparent ? "neutral-700" : "accent"} transition-colors`}>
-            定价
-          </Link>
-          <span className={`${mutedColor} mx-1`}>|</span>
           {user ? (
             <div className="flex items-center gap-2">
               <span className={`text-xs ${mutedColor}`}>{user.email}</span>
