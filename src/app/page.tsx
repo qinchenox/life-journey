@@ -53,13 +53,18 @@ function HeroSection({ onStart }: { onStart: () => void }) {
     const rect = e.currentTarget.getBoundingClientRect();
     setMouse({ x: (e.clientX - rect.left) / rect.width, y: (e.clientY - rect.top) / rect.height });
   }, []);
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const touch = e.touches[0];
+    setMouse({ x: (touch.clientX - rect.left) / rect.width, y: (touch.clientY - rect.top) / rect.height });
+  }, []);
   const parallax = (f: number) => ({
     transform: `translate(${(mouse.x-0.5)*f}px, ${(mouse.y-0.5)*f}px)`,
     transition: "transform 1s cubic-bezier(0.23,1,0.32,1)",
   });
 
   return (
-    <div ref={heroRef} onMouseMove={handleMouseMove} className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden select-none">
+    <div ref={heroRef} onMouseMove={handleMouseMove} onTouchMove={handleTouchMove} className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden select-none">
       <div className="absolute inset-0" style={{background:"#faf9f6"}}>
         <div className="absolute inset-0" style={{background:"radial-gradient(ellipse 45% 40% at 70% 15%, rgba(13,148,136,0.15) 0%, transparent 55%), radial-gradient(ellipse 50% 45% at 25% 80%, rgba(94,234,212,0.12) 0%, transparent 55%), radial-gradient(ellipse 35% 35% at 50% 50%, rgba(20,184,166,0.06) 0%, transparent 60%)",animation:"gradientShift 18s ease-in-out infinite"}}/>
         <div className="absolute inset-0" style={{backgroundImage:"radial-gradient(circle, rgba(13,148,136,0.12) 1px, transparent 1px)",backgroundSize:"40px 40px",opacity:0.4}}/>

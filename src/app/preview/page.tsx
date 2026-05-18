@@ -69,40 +69,45 @@ export default function PreviewPage() {
       <Header />
       <main className="mx-auto max-w-5xl px-6 py-8">
         {/* Tab bar */}
-        <div className="flex items-center gap-1 mb-8 overflow-x-auto pb-1">
-          {TABS.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
-                activeTab === tab.id
-                  ? "bg-accent text-white shadow-sm"
-                  : "text-neutral-500 hover:text-neutral-700 hover:bg-neutral-100"
-              }`}
-            >
-              <span className="text-base">{tab.icon}</span>
-              {tab.label}
-            </button>
-          ))}
-
-          {/* Generate button */}
-          <div className="ml-auto flex items-center gap-3">
-            {generating && (
-              <span className="flex items-center gap-2 text-sm text-neutral-500">
-                <span className="w-4 h-4 border-2 border-accent border-t-transparent rounded-full animate-spin" />
-                AI 正在生成资料...
-              </span>
-            )}
-            {genError && <span className="text-sm text-red-500">{genError}</span>}
-            <button
-              onClick={generateReports}
-              disabled={generating}
-              className="px-4 py-2.5 rounded-lg text-sm font-medium text-white disabled:opacity-50 transition-all hover:-translate-y-0.5 hover:shadow-md"
-              style={{ background: "linear-gradient(135deg, #0f766e, #14b8a6)" }}
-            >
-              {reports.length > 0 ? "重新生成" : "生成资料"}
-            </button>
+        <div className="relative mb-8">
+          <div className="flex items-center gap-1 overflow-x-auto pb-1 scrollbar-hide scroll-pl-1 pr-8"
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" }}>
+            {TABS.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all flex-shrink-0 ${
+                  activeTab === tab.id
+                    ? "bg-accent text-white shadow-sm"
+                    : "text-neutral-500 hover:text-neutral-700 hover:bg-neutral-100"
+                }`}
+              >
+                <span className="text-base">{tab.icon}</span>
+                {tab.label}
+              </button>
+            ))}
           </div>
+          {/* Scroll fade indicator */}
+          <div className="pointer-events-none absolute right-0 top-0 bottom-1 w-12 bg-gradient-to-l from-[#faf9f6] to-transparent lg:hidden" />
+        </div>
+
+        {/* Generate button row */}
+        <div className="flex items-center justify-end gap-3 mb-8">
+          {generating && (
+            <span className="flex items-center gap-2 text-sm text-neutral-500">
+              <span className="w-4 h-4 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+              AI 正在生成资料...
+            </span>
+          )}
+          {genError && <span className="text-sm text-red-500">{genError}</span>}
+          <button
+            onClick={generateReports}
+            disabled={generating}
+            className="px-4 py-2.5 rounded-lg text-sm font-medium text-white disabled:opacity-50 transition-all hover:-translate-y-0.5 hover:shadow-md"
+            style={{ background: "linear-gradient(135deg, #0f766e, #14b8a6)" }}
+          >
+            {reports.length > 0 ? "重新生成" : "生成资料"}
+          </button>
         </div>
 
         {/* Tab content */}

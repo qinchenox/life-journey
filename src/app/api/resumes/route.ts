@@ -9,7 +9,10 @@ export async function GET(request: NextRequest) {
   if (!payload) return NextResponse.json({ resumes: [] });
 
   const resumes = listResumesByUser(payload.userId);
-  return NextResponse.json({ resumes });
+  return NextResponse.json(
+    { resumes },
+    { headers: { "Cache-Control": "private, max-age=30" } }
+  );
 }
 
 export async function POST(request: NextRequest) {

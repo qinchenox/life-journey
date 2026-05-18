@@ -27,7 +27,7 @@ export function Header({ transparent }: HeaderProps) {
       .then((json) => {
         if (json.user) setUser(json.user);
       })
-      .catch(() => {});
+      .catch(() => { console.error("Header: 获取用户信息失败"); });
   }, [setUser]);
 
   const handleLogout = async () => {

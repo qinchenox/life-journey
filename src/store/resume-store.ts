@@ -104,7 +104,7 @@ export const useResumeStore = create<ResumeStore>()(
           const res = await fetch("/api/resumes");
           const json = await res.json();
           if (json.resumes) set({ resumeList: json.resumes });
-        } catch {}
+        } catch { console.error("loadResumeHistory: 加载历史记录失败"); }
       },
 
       saveToServer: async () => {
@@ -116,7 +116,9 @@ export const useResumeStore = create<ResumeStore>()(
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ data, agentId }),
           });
-        } catch {}
+        } catch {
+          console.error("saveToServer: 保存失败，请检查网络连接");
+        }
       },
 
       setData: (data) => set({ data, status: "ready", error: null }),

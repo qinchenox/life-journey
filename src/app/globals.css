@@ -56,6 +56,14 @@ button:focus-visible, a:focus-visible {
   border-radius: 4px;
 }
 
+@keyframes slideInFromRight {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+.animate-slide-in { animation: slideInFromRight 0.3s cubic-bezier(0.23,1,0.32,1); }
+
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+
 @media (prefers-reduced-motion: reduce) {
   main { animation: none; }
   *, ::before, ::after { animation-duration: 0.01ms !important; }

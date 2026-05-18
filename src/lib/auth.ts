@@ -1,8 +1,19 @@
 import { SignJWT, jwtVerify } from "jose";
 import bcrypt from "bcryptjs";
 
+const DEFAULT_SECRET = "life-journey-secret-change-in-production";
+const USING_DEFAULT_SECRET = !process.env.JWT_SECRET || process.env.JWT_SECRET === DEFAULT_SECRET;
+
+if (USING_DEFAULT_SECRET) {
+  console.warn(
+    "\n⚠️  安全警告：JWT_SECRET 使用默认值！\n" +
+    "   请在生产环境设置 JWT_SECRET 环境变量，否则 JWT token 可被伪造。\n" +
+    "   生成随机密钥：node -e \"console.log(require('crypto').randomBytes(64).toString('hex'))\"\n"
+  );
+}
+
 const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "life-journey-secret-change-in-production"
+  process.env.JWT_SECRET || DEFAULT_SECRET
 );
 const TOKEN_EXPIRY = "7d";
 
