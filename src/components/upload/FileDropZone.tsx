@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef } from "react";
+import { t } from "@/i18n";
 import { useRouter } from "next/navigation";
 import { useResumeStore } from "@/store/resume-store";
 import { UploadStatus } from "./UploadStatus";
@@ -16,6 +17,7 @@ export function FileDropZone() {
   const router = useRouter();
   const storeSetData = useResumeStore((s) => s.setData);
   const storeSetStatus = useResumeStore((s) => s.setStatus);
+  const storeError = useResumeStore((s) => s.error);
   const storeSetError = useResumeStore((s) => s.setError);
   const storeSetWarnings = useResumeStore((s) => s.setWarnings);
   const agentId = useResumeStore((s) => s.agentId);
@@ -28,11 +30,11 @@ export function FileDropZone() {
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     ];
     if (!allowed.includes(f.type) && !f.name.match(/\.(pdf|docx)$/i)) {
-      setError("仅支持 PDF 和 DOCX 文件格式。");
+      setError(t("upload.invalidFormat"));
       return;
     }
     if (f.size > 10 * 1024 * 1024) {
-      setError("文件大小不能超过 10MB。");
+      setError(t("upload.fileTooLarge"));
       return;
     }
     setFile(f);
@@ -66,7 +68,7 @@ export function FileDropZone() {
       const json: ParseResponse = await res.json();
 
       if (!res.ok || !json.success) {
-        storeSetError(json.error || "解析失败");
+        storeSetError(json.error || t("upload.parseFailed"));
         setStatus("idle");
         return;
       }
@@ -82,7 +84,7 @@ export function FileDropZone() {
         router.push("/edit");
       }
     } catch {
-      storeSetError("网络错误，请检查网络连接后重试。");
+      storeSetError(t("upload.networkError"));
       setStatus("idle");
     }
   };
@@ -124,9 +126,9 @@ export function FileDropZone() {
           <div>
             <div className="text-4xl mb-4">📄</div>
             <p className="text-lg font-medium text-neutral-700 mb-2">
-              拖拽简历文件到此处，或<span className="text-accent">点击上传</span>
+              {t("upload.dropHint")}<span className="text-accent">{t("upload.clickUpload")}</span>
             </p>
-            <p className="text-sm text-neutral-400">支持 PDF、DOCX 格式，最大 10MB</p>
+            <p className="text-sm text-neutral-400">{t("upload.formats")}</p>
           </div>
         ) : (
           <div>
@@ -143,7 +145,7 @@ export function FileDropZone() {
               }}
               className="text-sm text-neutral-400 hover:text-red-500 transition-colors"
             >
-              移除
+              {t("upload.remove")}
             </button>
           </div>
         )}
@@ -163,10 +165,10 @@ export function FileDropZone() {
         >
           {status === "submitting" ? (
             <span className="flex items-center justify-center gap-2">
-              <UploadStatus /> AI 正在解析简历...
+              <UploadStatus /> {t("upload.parsing")}
             </span>
           ) : (
-            "开始解析"
+            t("upload.startParse")
           )}
         </button>
       )}

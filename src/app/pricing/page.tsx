@@ -5,39 +5,7 @@ import { Header } from "@/components/layout/Header";
 import { useResumeStore } from "@/store/resume-store";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-
-const tiers = [
-  {
-    id: "free",
-    name: "免费版",
-    price: "¥0",
-    period: "永久",
-    description: "体验核心功能",
-    features: ["3 次简历解析", "1 个 AI Agent 风格", "生成个人主页 HTML", "基础主题"],
-    highlight: false,
-    plan: "",
-  },
-  {
-    id: "pro-monthly",
-    name: "Pro 月付",
-    price: "¥29",
-    period: "/月",
-    description: "适合求职旺季",
-    features: ["无限次简历解析", "全部 5 个 AI Agent", "项目成果报告生成", "行业简报 & 白皮书", "补充资料合并", "求职材料包", "优先处理队列"],
-    plan: "pro-monthly",
-    highlight: true,
-  },
-  {
-    id: "pro-yearly",
-    name: "Pro 年付",
-    price: "¥199",
-    period: "/年",
-    description: "省 ¥149 · 月均 ¥16.6",
-    features: ["Pro 月付全部功能", "专属高级主题", "批量导出", "年度报告汇总", "优先客服支持"],
-    plan: "pro-yearly",
-    highlight: false,
-  },
-];
+import { t, tv } from "@/i18n";
 
 function PayModal({ plan, onClose }: { plan: string; onClose: () => void }) {
   const [qrCode, setQrCode] = useState("");
@@ -59,9 +27,9 @@ function PayModal({ plan, onClose }: { plan: string; onClose: () => void }) {
           setQrCode(json.qrcode);
           setPayUrl(json.paymentUrl);
         } else {
-          setError(json.error || "支付下单失败");
+          setError(json.error || t("states.paymentFailed"));
         }
-      } catch { setError("网络错误"); }
+      } catch { setError(t("states.networkError")); }
       setLoading(false);
     })();
   });
@@ -73,29 +41,31 @@ function PayModal({ plan, onClose }: { plan: string; onClose: () => void }) {
         onClick={(e) => e.stopPropagation()}>
         <button onClick={onClose} className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full text-neutral-400 hover:bg-neutral-100">✕</button>
 
-        <h3 className="text-xl font-bold mb-2" style={{ color: "#1e293b" }}>微信扫码支付</h3>
+        <h3 className="text-xl font-bold mb-2" style={{ color: "#1e293b" }}>{t("pricing.payModal.title")}</h3>
         <p className="text-sm mb-6" style={{ color: "#94a3b8" }}>
-          {plan === "pro-yearly" ? "Pro 年付 ¥199" : "Pro 月付 ¥29"}
+          {plan === "pro-yearly"
+            ? `${t("pricing.yearly.name")} ${t("pricing.yearly.price")}`
+            : `${t("pricing.monthly.name")} ${t("pricing.monthly.price")}`}
         </p>
 
         {loading ? (
           <div className="flex items-center justify-center gap-2 py-12 text-sm" style={{ color: "#94a3b8" }}>
             <span className="w-5 h-5 border-2 border-accent border-t-transparent rounded-full animate-spin" />
-            生成收款码...
+            {t("pricing.payModal.generating")}
           </div>
         ) : error ? (
           <div className="py-8 text-sm" style={{ color: "#dc2626" }}>{error}</div>
         ) : (
           <div className="space-y-4">
-            {qrCode && <img src={qrCode} alt="支付二维码" className="mx-auto rounded-lg" style={{ width: 200, height: 200 }} />}
+            {qrCode && <img src={qrCode} alt={t("pricing.payModal.qrCodeAlt")} className="mx-auto rounded-lg" style={{ width: 200, height: 200 }} />}
             {payUrl && (
               <a href={payUrl} target="_blank" rel="noopener noreferrer"
                 className="block w-full py-2.5 rounded-lg text-sm font-medium text-white transition-all hover:opacity-90"
                 style={{ background: "linear-gradient(135deg, #0f766e, #14b8a6)" }}>
-                在浏览器中打开支付
+                {t("pricing.payModal.openInBrowser")}
               </a>
             )}
-            <p className="text-xs" style={{ color: "#94a3b8" }}>支付后自动开通，无需手动操作</p>
+            <p className="text-xs" style={{ color: "#94a3b8" }}>{t("pricing.payModal.autoActivate")}</p>
           </div>
         )}
       </div>
@@ -115,14 +85,47 @@ export default function PricingPage() {
     setPayPlan(plan);
   };
 
+  const tiers = [
+    {
+      id: "free",
+      name: t("pricing.free.name"),
+      price: t("pricing.free.price"),
+      period: t("pricing.free.period"),
+      description: t("pricing.free.description"),
+      features: tv("pricing.free.features") as string[],
+      highlight: false,
+      plan: "",
+    },
+    {
+      id: "pro-monthly",
+      name: t("pricing.monthly.name"),
+      price: t("pricing.monthly.price"),
+      period: t("pricing.monthly.period"),
+      description: t("pricing.monthly.description"),
+      features: tv("pricing.monthly.features") as string[],
+      plan: "pro-monthly",
+      highlight: true,
+    },
+    {
+      id: "pro-yearly",
+      name: t("pricing.yearly.name"),
+      price: t("pricing.yearly.price"),
+      period: t("pricing.yearly.period"),
+      description: t("pricing.yearly.description"),
+      features: tv("pricing.yearly.features") as string[],
+      plan: "pro-yearly",
+      highlight: false,
+    },
+  ];
+
   return (
     <>
       <Header />
       <main className="min-h-screen" style={{ background: "linear-gradient(180deg, #faf9f6 0%, #f0fdfa 100%)" }}>
         <div className="mx-auto max-w-5xl px-6 py-16 sm:py-24">
           <div className="text-center mb-14">
-            <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4" style={{ color: "#1e293b" }}>选择适合你的方案</h1>
-            <p className="text-lg max-w-md mx-auto" style={{ color: "#64748b" }}>免费体验 3 次，满意后升级 Pro 解锁全部功能</p>
+            <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4" style={{ color: "#1e293b" }}>{t("pricing.title")}</h1>
+            <p className="text-lg max-w-md mx-auto" style={{ color: "#64748b" }}>{t("pricing.subtitle")}</p>
           </div>
 
           {error && (
@@ -134,7 +137,7 @@ export default function PricingPage() {
               <div key={tier.id} className="relative rounded-2xl p-8 flex flex-col transition-all duration-300 hover:-translate-y-1"
                 style={{ background: tier.highlight ? "#fff" : "rgba(255,255,255,0.7)", border: tier.highlight ? "2px solid #0d9488" : "1px solid rgba(13,148,136,0.15)", boxShadow: tier.highlight ? "0 8px 40px rgba(13,148,136,0.12)" : "0 2px 16px rgba(0,0,0,0.04)" }}>
                 {tier.highlight && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-semibold text-white" style={{ background: "linear-gradient(135deg, #0f766e, #14b8a6)" }}>推荐</div>
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-semibold text-white" style={{ background: "linear-gradient(135deg, #0f766e, #14b8a6)" }}>{t("pricing.recommended")}</div>
                 )}
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold mb-1" style={{ color: "#1e293b" }}>{tier.name}</h3>
@@ -155,18 +158,18 @@ export default function PricingPage() {
                 {tier.plan ? (
                   <button onClick={() => handleUpgrade(tier.plan)} className="w-full py-3 rounded-xl text-sm font-semibold transition-all hover:-translate-y-0.5 active:scale-[0.98]"
                     style={{ background: tier.highlight ? "linear-gradient(135deg, #0f766e, #14b8a6)" : "rgba(13,148,136,0.1)", color: tier.highlight ? "#fff" : "#0f766e" }}>
-                    升级 Pro
+                    {t("pricing.upgrade")}
                   </button>
                 ) : (
                   <Link href={user ? "/" : "/login"} className="w-full py-3 rounded-xl text-sm font-semibold text-center transition-all hover:-translate-y-0.5 block"
-                    style={{ background: "rgba(13,148,136,0.08)", color: "#0f766e" }}>{user ? "开始使用" : "免费注册"}</Link>
+                    style={{ background: "rgba(13,148,136,0.08)", color: "#0f766e" }}>{user ? t("pricing.free.start") : t("pricing.free.cta")}</Link>
                 )}
               </div>
             ))}
           </div>
 
           <div className="text-center mt-12">
-            <Link href="/" className="text-sm hover:underline" style={{ color: "#94a3b8" }}>← 返回首页</Link>
+            <Link href="/" className="text-sm hover:underline" style={{ color: "#94a3b8" }}>{t("pricing.backToHome")}</Link>
           </div>
         </div>
 

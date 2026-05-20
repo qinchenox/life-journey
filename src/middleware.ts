@@ -18,7 +18,15 @@ function isPublic(pathname: string): boolean {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (isPublic(pathname)) return NextResponse.next();
+  // Locale from cookie or default to zh
+  const localeCookie = request.cookies.get("locale")?.value;
+  const locale = localeCookie === "en" ? "en" : "zh";
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-locale", locale);
+
+  if (isPublic(pathname)) {
+    return NextResponse.next({ request: { headers: requestHeaders } });
+  }
 
   const token = request.cookies.get("token")?.value;
   if (!token) {
@@ -35,8 +43,6 @@ export async function middleware(request: NextRequest) {
 
   try {
     const { payload } = await jwtVerify(token, JWT_SECRET);
-    // 将用户信息注入请求头
-    const requestHeaders = new Headers(request.headers);
     requestHeaders.set("x-user-id", payload.userId as string);
     requestHeaders.set("x-user-email", payload.email as string);
 

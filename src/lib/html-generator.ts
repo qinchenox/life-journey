@@ -1,5 +1,9 @@
 import { ResumeData } from "./types";
 import { THEMES, DEFAULT_THEME_ID, ThemeConfig } from "./themes";
+import { serverT } from "@/i18n/server";
+
+const locale = (process.env.NEXT_PUBLIC_LOCALE || "zh") as "zh" | "en";
+const h = (key: string) => serverT(key, locale);
 
 function esc(s: string): string {
   return s
@@ -195,7 +199,7 @@ function renderBody(data: ResumeData): string {
   </section>`;
 
   // Skills
-  const skillsHTML = skills.length > 0 ? s("技能", "⚡", `
+  const skillsHTML = skills.length > 0 ? s(h("html.skills"), "⚡", `
   <div class="skills-grid">
     ${skills.map((cat) => `
     <div>
@@ -207,7 +211,7 @@ function renderBody(data: ResumeData): string {
   </div>`) : "";
 
   // Experience with timeline
-  const experienceHTML = experience.length > 0 ? s("工作经历", "💼", `
+  const experienceHTML = experience.length > 0 ? s(h("html.experience"), "💼", `
   <div class="timeline">
     ${experience.map((exp) => `
     <div class="timeline-item">
@@ -221,7 +225,7 @@ function renderBody(data: ResumeData): string {
   </div>`) : "";
 
   // Education with timeline
-  const educationHTML = education.length > 0 ? s("教育", "🎓", `
+  const educationHTML = education.length > 0 ? s(h("html.education"), "🎓", `
   <div class="timeline" style="margin-top:0">
     ${education.map((edu) => `
     <div class="timeline-item">
@@ -234,7 +238,7 @@ function renderBody(data: ResumeData): string {
   </div>`) : "";
 
   // Projects as cards
-  const projectsHTML = projects.length > 0 ? s("项目", "🚀", `
+  const projectsHTML = projects.length > 0 ? s(h("html.projects"), "🚀", `
   <div class="projects-grid">
     ${projects.map((proj) => `
     <div class="project-card">
@@ -248,7 +252,7 @@ function renderBody(data: ResumeData): string {
   </div>`) : "";
 
   // Languages
-  const languagesHTML = languages && languages.length > 0 ? s("语言能力", "🌐", `
+  const languagesHTML = languages && languages.length > 0 ? s(h("html.languages"), "🌐", `
   <div class="skills-grid">
     ${languages.map((lang) => `
     <div>
@@ -257,7 +261,7 @@ function renderBody(data: ResumeData): string {
   </div>`) : "";
 
   // Certifications
-  const certsHTML = certifications && certifications.length > 0 ? s("证书", "📜", `
+  const certsHTML = certifications && certifications.length > 0 ? s(h("html.certifications"), "📜", `
   <div class="skills-grid">
     ${certifications.map((cert) => `
     <div>
@@ -267,13 +271,13 @@ function renderBody(data: ResumeData): string {
   </div>`) : "";
 
   // About
-  const aboutHTML = basics.summary ? s("关于", "✨", `<p class="about-text">${esc(basics.summary)}</p>`) : "";
+  const aboutHTML = basics.summary ? s(h("html.about"), "✨", `<p class="about-text">${esc(basics.summary)}</p>`) : "";
 
   const isSplit = t.layout === "split";
 
   // Sidebar for split layout
   const aboutSidebar = basics.summary && isSplit
-    ? `<div class="section anim-in" style="animation-delay:0.15s"><h2 class="heading"><span class="heading-dot"></span>关于</h2><p class="about-text" style="font-size:0.9rem">${esc(basics.summary)}</p></div>`
+    ? `<div class="section anim-in" style="animation-delay:0.15s"><h2 class="heading"><span class="heading-dot"></span>${h("html.about")}</h2><p class="about-text" style="font-size:0.9rem">${esc(basics.summary)}</p></div>`
     : "";
 
   const skillsSidebarHTML = isSplit && skills.length > 0
@@ -289,7 +293,7 @@ function renderBody(data: ResumeData): string {
     <div class="split-layout">
       <aside class="sidebar">
         <div class="anim-in" style="animation-delay:0.05s">
-          <h1 class="name">${esc(basics.name || "姓名")}</h1>
+          <h1 class="name">${esc(basics.name || h("edit.form.name"))}</h1>
           <p class="title">${esc(basics.title)}</p>
           ${contactHTML}
         </div>
@@ -306,7 +310,7 @@ function renderBody(data: ResumeData): string {
         ${projectsHTML}
         ${isSplit ? "" : languagesHTML}
         ${isSplit ? "" : certsHTML}
-        <footer class="footer anim-in" style="animation-delay:0.8s">Made with 人生旅途 · ${esc(t.name)}主题</footer>
+        <footer class="footer anim-in" style="animation-delay:0.8s">${h("html.generatedBy")} · ${esc(t.name)}Theme</footer>
       </main>
     </div>`;
   }
@@ -314,7 +318,7 @@ function renderBody(data: ResumeData): string {
   return `
   <div class="container">
     <header class="anim-in" style="animation-delay:0.05s">
-      <h1 class="name">${esc(basics.name || "姓名")}</h1>
+      <h1 class="name">${esc(basics.name || h("edit.form.name"))}</h1>
       <p class="title">${esc(basics.title)}</p>
       ${contactHTML}
     </header>
@@ -325,19 +329,19 @@ function renderBody(data: ResumeData): string {
     ${projectsHTML}
     ${languagesHTML}
     ${certsHTML}
-    <footer class="footer anim-in" style="animation-delay:0.8s">Made with 人生旅途 · ${esc(t.name)}主题</footer>
+    <footer class="footer anim-in" style="animation-delay:0.8s">${h("html.generatedBy")} · ${esc(t.name)}Theme</footer>
   </div>`;
 }
 
 export function generatePortfolioHTML(data: ResumeData): string {
   const t = getTheme(data);
   const body = renderBody(data);
-  const fullName = esc(data.basics.name || "个人主页");
-  const description = esc(data.basics.summary || data.basics.title || "个人介绍");
+  const fullName = esc(data.basics.name || h("edit.form.name"));
+  const description = esc(data.basics.summary || data.basics.title || h("edit.form.summary"));
   const titleText = esc(data.basics.title || "");
 
   return `<!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="${locale === 'en' ? 'en' : 'zh-CN'}"
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
@@ -375,7 +379,7 @@ export function generatePreviewHTML(data: ResumeData): string {
   const body = renderBody(data);
 
   return `<!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="${locale === 'en' ? 'en' : 'zh-CN'}"
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">

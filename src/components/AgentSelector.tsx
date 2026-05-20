@@ -1,6 +1,7 @@
 "use client";
 
 import { AGENTS, DEFAULT_AGENT_ID } from "@/lib/agents";
+import { t } from "@/i18n";
 
 interface AgentSelectorProps {
   value: string;
@@ -14,7 +15,7 @@ export function AgentSelector({ value, onChange, compact }: AgentSelectorProps) 
   if (compact) {
     return (
       <div className="flex items-center gap-2">
-        <span className="text-xs text-neutral-400">解析风格</span>
+        <span className="text-xs text-neutral-400">{t("edit.agentSelector.label")}</span>
         <select
           value={value}
           onChange={(e) => onChange(e.target.value)}
@@ -22,7 +23,7 @@ export function AgentSelector({ value, onChange, compact }: AgentSelectorProps) 
         >
           {AGENTS.map((a) => (
             <option key={a.id} value={a.id}>
-              {a.icon} {a.name}
+              {a.icon} {t(`agents.${a.id}.name`)}
             </option>
           ))}
         </select>
@@ -32,7 +33,7 @@ export function AgentSelector({ value, onChange, compact }: AgentSelectorProps) 
 
   return (
     <div className="space-y-2">
-      <p className="text-xs text-neutral-400 font-medium">选择 AI 解析风格</p>
+      <p className="text-xs text-neutral-400 font-medium">{t("edit.agentSelector.label")}</p>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
         {AGENTS.map((a) => (
           <button
@@ -45,14 +46,14 @@ export function AgentSelector({ value, onChange, compact }: AgentSelectorProps) 
             }`}
           >
             <div className="text-xl mb-1">{a.icon}</div>
-            <div className="font-medium text-neutral-800 text-xs">{a.name}</div>
-            <div className="text-xs text-neutral-400 mt-0.5 leading-tight">{a.description}</div>
+            <div className="font-medium text-neutral-800 text-xs">{t(`agents.${a.id}.name`)}</div>
+            <div className="text-xs text-neutral-400 mt-0.5 leading-tight">{t(`agents.${a.id}.description`)}</div>
           </button>
         ))}
       </div>
       {current && (
         <p className="text-xs text-neutral-400 leading-relaxed pt-1">
-          适合：{current.suitable}
+          {t("edit.agentSelector.suitable")}：{t(`agents.${current.id}.suitable`)}
         </p>
       )}
     </div>

@@ -6,6 +6,7 @@ import { ResumeForm } from "@/components/edit/ResumeForm";
 import { SupplementPanel } from "@/components/edit/SupplementPanel";
 import { AgentSelector } from "@/components/AgentSelector";
 import { useResumeStore } from "@/store/resume-store";
+import { t } from "@/i18n";
 
 export default function EditPage() {
   const agentId = useResumeStore((s) => s.agentId);
@@ -29,7 +30,7 @@ export default function EditPage() {
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                   <path d="M12 20h9M16.5 3.5a2.12 2.12 0 113 3L7 19l-4 1 1-4L16.5 3.5z"/>
                 </svg>
-                补充资料
+                {t("edit.supplement")}
               </button>
             </div>
             <ResumeForm />
@@ -49,7 +50,7 @@ export default function EditPage() {
             <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" />
             <div className="absolute right-0 top-0 bottom-0 w-[340px] max-w-[90vw] bg-white shadow-2xl overflow-y-auto animate-slide-in">
               <div className="sticky top-0 bg-white border-b border-neutral-100 px-4 py-3 flex items-center justify-between z-10">
-                <span className="text-sm font-semibold text-neutral-700">补充资料</span>
+                <span className="text-sm font-semibold text-neutral-700">{t("edit.supplement")}</span>
                 <button onClick={() => setSidebarOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-neutral-100 transition-colors">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
                 </button>

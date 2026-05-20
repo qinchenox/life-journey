@@ -1,13 +1,16 @@
+"use client";
+
 import Link from "next/link";
+import { t } from "@/i18n";
 
 export default function NotFound() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#faf9f6] px-6">
       <div className="text-center max-w-sm">
         <div className="text-5xl font-bold text-teal-600 mb-3">404</div>
-        <h2 className="text-lg font-semibold text-[#1e293b] mb-2">页面不存在</h2>
+        <h2 className="text-lg font-semibold text-[#1e293b] mb-2">{t("states.notFound")}</h2>
         <p className="text-sm text-[#94a3b8] mb-6">
-          你访问的页面可能已被移动、删除，或输入的地址有误。
+          {t("states.notFoundDesc")}
         </p>
         <Link
           href="/"
@@ -17,7 +20,7 @@ export default function NotFound() {
             boxShadow: "0 4px 16px rgba(13,148,136,0.2)",
           }}
         >
-          返回首页
+          {t("states.backHome")}
         </Link>
       </div>
     </div>

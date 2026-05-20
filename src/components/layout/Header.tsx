@@ -4,12 +4,14 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useResumeStore } from "@/store/resume-store";
+import { t, tv, useLocale, setLocaleCookie } from "@/i18n";
 
-const steps = [
-  { num: 1, label: "上传简历", path: "/" },
-  { num: 2, label: "编辑信息", path: "/edit" },
-  { num: 3, label: "预览发布", path: "/preview" },
-];
+const stepPaths = ["/", "/edit", "/preview"];
+
+function getSteps() {
+  const labels = tv("nav.steps") as string[];
+  return labels.map((label, i) => ({ num: i + 1, label, path: stepPaths[i] }));
+}
 
 interface HeaderProps {
   transparent?: boolean;
@@ -71,14 +73,14 @@ export function Header({ transparent }: HeaderProps) {
                 <path d="M14 18a4 4 0 1 1 8 0v2a2 2 0 0 1 4 0v6c0 5.523-4.477 10-10 10s-10-4.477-10-10v-6a2 2 0 1 1 4 0v-2a4 4 0 0 1 4 0v2" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                 <defs><linearGradient id="logo-sm-g" x1="0" y1="0" x2="48" y2="48"><stop offset="0%" stopColor="#0f766e"/><stop offset="100%" stopColor="#5eead4"/></linearGradient></defs>
               </svg>
-              人生旅途
+              {t("nav.brand")}
             </span>
           ) : (
-            "人生旅途"
+            t("nav.brand")
           )}
         </Link>
         <nav className="flex items-center gap-2 text-sm">
-          {steps.map((step, i) => (
+          {getSteps().map((step, i) => (
             <div key={step.num} className="flex items-center gap-2">
               {i > 0 && <span className={mutedColor}>→</span>}
               {canAccess(i) ? (
@@ -115,6 +117,17 @@ export function Header({ transparent }: HeaderProps) {
               )}
             </div>
           ))}
+          <button
+            onClick={() => {
+              const next = useLocale() === "zh" ? "en" : "zh";
+              setLocaleCookie(next);
+              window.location.reload();
+            }}
+            className="text-xs px-2 py-1 rounded border border-neutral-200 hover:bg-neutral-50 transition-colors"
+            title={useLocale() === "zh" ? "Switch to English" : "切换到中文"}
+          >
+            {useLocale() === "zh" ? "EN" : "中"}
+          </button>
           {user ? (
             <div className="flex items-center gap-2">
               <span className={`text-xs ${mutedColor}`}>{user.email}</span>
@@ -122,7 +135,7 @@ export function Header({ transparent }: HeaderProps) {
                 onClick={handleLogout}
                 className="text-xs text-neutral-400 hover:text-red-500 transition-colors"
               >
-                退出
+                {t("nav.logout")}
               </button>
             </div>
           ) : (
@@ -130,7 +143,7 @@ export function Header({ transparent }: HeaderProps) {
               href="/login"
               className={`text-xs ${mutedColor} hover:text-${transparent ? "white" : "accent"} transition-colors`}
             >
-              登录
+              {t("nav.login")}
             </Link>
           )}
         </nav>

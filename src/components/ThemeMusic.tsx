@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import { t } from "@/i18n";
 
 /* ── Web Audio 人生旅途主题轻音乐 ── */
 
@@ -245,7 +246,7 @@ export function ThemeMusic() {
           border: playing ? "none" : "1px solid rgba(13,148,136,0.2)",
           boxShadow: playing ? "0 4px 16px rgba(13,148,136,0.3)" : "0 2px 8px rgba(0,0,0,0.06)",
         }}
-        title={playing ? "暂停音乐" : "播放音乐 · 双击调音量"}
+        title={playing ? t("music.title") : t("music.hint")}
       >
         {playing ? "🎵" : "♪"}
       </button>

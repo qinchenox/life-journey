@@ -3,6 +3,7 @@ import { extractText, detectMimeType } from "@/lib/text-extractor";
 import { getTokenFromRequest, verifyToken } from "@/lib/auth";
 import { getAgent } from "@/lib/agents";
 import { ResumeData } from "@/lib/types";
+import { getMergePrompt } from "@/i18n/prompts";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const MAX_TEXT_LENGTH = 8000;
@@ -10,18 +11,7 @@ const BASE_URL = process.env.LLM_BASE_URL || "https://dashscope.aliyuncs.com/com
 const API_KEY = process.env.ANTHROPIC_API_KEY || "";
 const MODEL = process.env.LLM_MODEL || "qwen-plus";
 
-const MERGE_PROMPT = `你是一位简历优化专家。你会收到一份现有的简历数据（JSON格式）和一段补充材料文本。
-请将补充材料中的新信息智能合并到现有简历中，补充缺失的模块、增强已有内容。
-
-合并原则：
-- 保留现有简历中已有的正确信息，不要删除或修改无关部分
-- 补充材料中的新项目、新技能、新经历应新增到对应模块
-- 如果补充材料与已有信息相关但不重复，请增强现有内容（如在已有工作经历下新增补充材料提到的成果亮点）
-- 如果有信息冲突，以补充材料为准进行更新
-- 补充材料可能是不完整的片段（如一段自我介绍、一个项目文档），请提取关键信息填入合适的字段
-- 返回完整的合并后 JSON，格式与输入完全相同
-
-只返回 \`\`\`json 代码块包裹的完整 JSON，不要任何其他文字。`;
+function getPrompt() { return getMergePrompt(); }
 
 export async function POST(request: NextRequest) {
   try {
@@ -78,7 +68,7 @@ export async function POST(request: NextRequest) {
         max_tokens: 4096,
         temperature: 0.3,
         messages: [
-          { role: "system", content: MERGE_PROMPT },
+          { role: "system", content: getPrompt() },
           {
             role: "user",
             content: `现有简历数据：\n${currentDataStr}\n\n补充材料文本：\n${truncated}`,

@@ -1,7 +1,10 @@
 import type { Metadata, Viewport } from "next";
+import { headers } from "next/headers";
 import "./globals.css";
 import { FeedbackButton } from "@/components/FeedbackButton";
 import { ThemeMusic } from "@/components/ThemeMusic";
+import { serverT } from "@/i18n/server";
+import type { Locale } from "@/i18n/server";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -12,37 +15,45 @@ export const viewport: Viewport = {
   ],
 };
 
-export const metadata: Metadata = {
-  title: {
-    default: "人生旅途 — AI 驱动的个人品牌网站生成器",
-    template: "%s | 人生旅途",
-  },
-  description: "上传简历，AI 智能润色，一键生成现代个人主页。支持 PDF/DOCX 解析，5 种 AI 风格，扫码即可分享。",
-  keywords: ["简历", "个人主页", "AI", "简历生成", "个人品牌", "网站生成器"],
-  authors: [{ name: "人生旅途" }],
-  robots: { index: true, follow: true },
-  openGraph: {
-    type: "website",
-    locale: "zh_CN",
-    siteName: "人生旅途",
-    title: "人生旅途 — AI 驱动的个人品牌网站生成器",
-    description: "上传简历，AI 智能润色，一键生成现代个人主页。",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "人生旅途 — AI 驱动的个人品牌网站生成器",
-    description: "上传简历，AI 智能润色，一键生成现代个人主页。",
-  },
-  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"),
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const heads = await headers();
+  const locale: Locale = heads.get("x-locale") === "en" ? "en" : "zh";
 
-export default function RootLayout({
+  return {
+    title: {
+      default: serverT("site.title", locale),
+      template: `%s | ${serverT("site.title", locale)}`,
+    },
+    description: serverT("site.description", locale),
+    keywords: serverT("site.keywords", locale).split(","),
+    authors: [{ name: serverT("nav.brand", locale) }],
+    robots: { index: true, follow: true },
+    openGraph: {
+      type: "website",
+      locale: locale === "zh" ? "zh_CN" : "en_US",
+      siteName: serverT("nav.brand", locale),
+      title: serverT("site.ogTitle", locale),
+      description: serverT("site.ogDescription", locale),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: serverT("site.ogTitle", locale),
+      description: serverT("site.ogDescription", locale),
+    },
+    metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"),
+  };
+}
+
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const heads = await headers();
+  const locale: Locale = heads.get("x-locale") === "en" ? "en" : "zh";
+
   return (
-    <html lang="zh-CN">
+    <html lang={locale === "en" ? "en" : "zh-CN"}>
       <body className="min-h-screen bg-[#fafafa] text-[#0a0a0a] antialiased">
         {children}
         <ThemeMusic />

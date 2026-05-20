@@ -6,6 +6,7 @@ import { FileDropZone } from "@/components/upload/FileDropZone";
 import { AgentSelector } from "@/components/AgentSelector";
 import { useResumeStore } from "@/store/resume-store";
 import { useEffect, useRef, useState, useCallback } from "react";
+import { t, tv } from "@/i18n";
 
 /* ── Premium Logo Mark ── */
 function LogoMark({ size = 48 }: { size?: number }) {
@@ -45,8 +46,89 @@ function TypewriterText({ texts, speed }: { texts: string[]; speed: number }) {
   return <span>{texts[idx].slice(0, charIdx)}<span className="animate-pulse" style={{color:"var(--color-accent, #0d9488)"}}>|</span></span>;
 }
 
+/* ── Video Background ── */
+function VideoBackground({ paused }: { paused?: boolean }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [loaded, setLoaded] = useState(false);
+  const [error, setError] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Pause/resume based on prop
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (paused) v.pause();
+    else if (loaded) v.play().catch(() => {});
+  }, [paused, loaded]);
+
+  useEffect(() => {
+    // Check mobile for data-saving: skip video on small screens
+    const mq = window.matchMedia("(max-width: 768px)");
+    setIsMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  // Respect reduced motion preference
+  const [reducedMotion, setReducedMotion] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReducedMotion(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  const showVideo = !isMobile && !reducedMotion && !error;
+
+  return (
+    <div className="absolute inset-0 overflow-hidden">
+      {/* Static base — always present */}
+      <div className="absolute inset-0" style={{background:"#faf9f6"}} />
+
+      {/* Video — fades in when loaded */}
+      {showVideo && (
+        <video
+          ref={videoRef}
+          autoPlay
+          muted
+          loop
+          playsInline
+          disablePictureInPicture
+          onLoadedData={() => setLoaded(true)}
+          onError={() => setError(true)}
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{
+            opacity: loaded ? 1 : 0,
+            transition: "opacity 2s cubic-bezier(0.23,1,0.32,1)",
+            objectPosition: "center 40%",   // frame lower to show more ground/path
+          }}
+        >
+          <source src="/videos/hero-bg.webm" type="video/webm" />
+          <source src="/videos/hero-bg.mp4" type="video/mp4" />
+        </video>
+      )}
+
+      {/* Light brand tint + bottom fade — let video breathe */}
+      <div className="absolute inset-0" style={{
+        background: showVideo
+          ? [
+              // Subtle teal wash — barely there, just ties video to brand
+              "rgba(13,148,136,0.12)",
+              // Vignette: slightly darker edges so centered text pops
+              "radial-gradient(ellipse 65% 55% at 50% 45%, transparent 0%, rgba(15,23,42,0.2) 100%)",
+              // Bottom fade: transition to page background below hero
+              "linear-gradient(0deg, rgba(250,249,246,0.9) 0%, rgba(250,249,246,0.3) 25%, transparent 50%)",
+            ].join(", ")
+          : "radial-gradient(ellipse 45% 40% at 70% 15%, rgba(13,148,136,0.15) 0%, transparent 55%), radial-gradient(ellipse 50% 45% at 25% 80%, rgba(94,234,212,0.12) 0%, transparent 55%), radial-gradient(ellipse 35% 35% at 50% 50%, rgba(20,184,166,0.06) 0%, transparent 60%)",
+      }} />
+    </div>
+  );
+}
+
 /* ── Hero ── */
-function HeroSection({ onStart }: { onStart: () => void }) {
+function HeroSection({ onStart, paused }: { onStart: () => void; paused?: boolean }) {
   const heroRef = useRef<HTMLDivElement>(null);
   const [mouse, setMouse] = useState({ x: 0.5, y: 0.5 });
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
@@ -65,10 +147,7 @@ function HeroSection({ onStart }: { onStart: () => void }) {
 
   return (
     <div ref={heroRef} onMouseMove={handleMouseMove} onTouchMove={handleTouchMove} className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden select-none">
-      <div className="absolute inset-0" style={{background:"#faf9f6"}}>
-        <div className="absolute inset-0" style={{background:"radial-gradient(ellipse 45% 40% at 70% 15%, rgba(13,148,136,0.15) 0%, transparent 55%), radial-gradient(ellipse 50% 45% at 25% 80%, rgba(94,234,212,0.12) 0%, transparent 55%), radial-gradient(ellipse 35% 35% at 50% 50%, rgba(20,184,166,0.06) 0%, transparent 60%)",animation:"gradientShift 18s ease-in-out infinite"}}/>
-        <div className="absolute inset-0" style={{backgroundImage:"radial-gradient(circle, rgba(13,148,136,0.12) 1px, transparent 1px)",backgroundSize:"40px 40px",opacity:0.4}}/>
-      </div>
+      <VideoBackground paused={paused} />
       <div className="absolute w-[500px] h-[500px] rounded-full pointer-events-none" style={{background:"radial-gradient(circle, rgba(94,234,212,0.18), transparent 70%)",top:"8%",left:"-10%",filter:"blur(80px)",animation:"floatSlow 20s ease-in-out infinite",...parallax(-25)}}/>
       <div className="absolute w-[380px] h-[380px] rounded-full pointer-events-none" style={{background:"radial-gradient(circle, rgba(13,148,136,0.14), transparent 70%)",bottom:"15%",right:"-6%",filter:"blur(70px)",animation:"floatSlow 22s ease-in-out infinite reverse",...parallax(20)}}/>
       <div className="absolute w-[280px] h-[280px] rounded-full pointer-events-none" style={{background:"radial-gradient(circle, rgba(20,184,166,0.1), transparent 70%)",top:"55%",left:"55%",filter:"blur(60px)",animation:"floatSlow 16s ease-in-out infinite",...parallax(-15)}}/>
@@ -83,12 +162,12 @@ function HeroSection({ onStart }: { onStart: () => void }) {
           </div>
         </div>
 
-        <h1 className="font-bold tracking-tight leading-none mb-5" style={{fontSize:"clamp(2.8rem, 8vw, 5.2rem)",letterSpacing:"-0.04em",color:"#1e293b"}}>
-          人生<span className="bg-clip-text" style={{background:"linear-gradient(135deg, #0f766e 0%, #14b8a6 40%, #5eead4 100%)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>旅途</span>
+        <h1 className="font-bold tracking-tight leading-none mb-5" style={{fontSize:"clamp(2.8rem, 8vw, 5.2rem)",letterSpacing:"-0.04em",color:"#1e293b",textShadow:"0 1px 2px rgba(255,255,255,0.5)"}}>
+          人生<span className="bg-clip-text" style={{background:"linear-gradient(135deg, #0f766e 0%, #14b8a6 40%, #5eead4 100%)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",filter:"drop-shadow(0 1px 2px rgba(255,255,255,0.5))"}}>旅途</span>
         </h1>
 
-        <p className="max-w-lg mx-auto mb-10" style={{fontSize:"clamp(1rem, 2.5vw, 1.2rem)",color:"#64748b",lineHeight:"1.8",minHeight:"2.5em"}}>
-          <TypewriterText texts={["AI 智能润色简历，生成现代个人主页","5 种 AI 风格，匹配你的职业定位","一键发布，扫码即可分享给世界"]} speed={80}/>
+        <p className="max-w-lg mx-auto mb-10" style={{fontSize:"clamp(1rem, 2.5vw, 1.2rem)",color:"#475569",lineHeight:"1.8",minHeight:"2.5em",textShadow:"0 1px 1px rgba(255,255,255,0.4)"}}>
+          <TypewriterText texts={tv("home.typewriter") as string[]} speed={80}/>
         </p>
 
         {/* CTA — opens modal */}
@@ -98,24 +177,24 @@ function HeroSection({ onStart }: { onStart: () => void }) {
             onMouseEnter={(e)=>{e.currentTarget.style.transform="translateY(-2px)";e.currentTarget.style.boxShadow="0 8px 32px rgba(13,148,136,0.35), 0 2px 6px rgba(0,0,0,0.08)"}}
             onMouseLeave={(e)=>{e.currentTarget.style.transform="translateY(0)";e.currentTarget.style.boxShadow="0 4px 20px rgba(13,148,136,0.25), 0 1px 3px rgba(0,0,0,0.06)"}}
           >
-            <span className="relative z-10">开始创建</span>
+            <span className="relative z-10">{t("home.cta")}</span>
             <svg className="relative z-10 group-hover:translate-x-0.5 transition-transform duration-300" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </button>
           <button onClick={onStart} className="inline-flex items-center gap-2 px-7 py-4 rounded-full text-sm font-medium transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal-400 hover:-translate-y-0.5 active:scale-95"
             style={{background:"rgba(255,255,255,0.7)",border:"1px solid rgba(13,148,136,0.2)",color:"#0f766e",backdropFilter:"blur(12px)",WebkitBackdropFilter:"blur(12px)",minHeight:"52px"}}>
-            了解更多
+            {t("home.learnMore")}
           </button>
         </div>
 
         <div className="mt-10 flex items-center justify-center gap-6 text-sm" style={{color:"#94a3b8"}}>
-          <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full" style={{background:"#2dd4bf"}}/> AI 智能润色</span>
-          <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full" style={{background:"#14b8a6"}}/> 5 种风格</span>
-          <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full" style={{background:"#0f766e"}}/> 一键发布</span>
+          {(tv("home.tagline") as string[]).map((text, i) => (
+            <span key={text} className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full" style={{background:["#2dd4bf","#14b8a6","#0f766e"][i]}}/> {text}</span>
+          ))}
         </div>
       </div>
 
       <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2" style={{animation:"fadeBounce 2s ease-in-out infinite"}}>
-        <span className="text-xs" style={{color:"#94a3b8"}}>向下滚动</span>
+        <span className="text-xs" style={{color:"#94a3b8"}}>{t("home.scrollHint")}</span>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round"><path d="M17 10 12 15 7 10"/></svg>
       </div>
     </div>
@@ -144,29 +223,29 @@ function UploadModal({ open, onClose }: { open: boolean; onClose: () => void }) 
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-      {/* Backdrop */}
-      <div className="absolute inset-0" style={{background:"rgba(15,23,42,0.5)",backdropFilter:"blur(8px)",WebkitBackdropFilter:"blur(8px)"}}/>
+      {/* Backdrop — no blur over video (GPU killer) */}
+      <div className="absolute inset-0" style={{background:"rgba(15,23,42,0.6)"}}/>
       {/* Panel */}
       <div ref={modalRef} className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl p-6 sm:p-10 shadow-2xl" style={{background:"#fff",animation:"modalIn 0.4s cubic-bezier(0.23,1,0.32,1)"}}>
         {/* Close button */}
-        <button onClick={onClose} className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full transition-colors hover:bg-neutral-100 focus-visible:outline-2 focus-visible:outline-teal-500" style={{color:"#94a3b8"}} aria-label="关闭">
+        <button onClick={onClose} className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full transition-colors hover:bg-neutral-100 focus-visible:outline-2 focus-visible:outline-teal-500" style={{color:"#94a3b8"}} aria-label={t("states.close")}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
         </button>
 
         <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold mb-2" style={{color:"#1e293b"}}>开始创建</h2>
-          <p className="text-sm" style={{color:"#94a3b8"}}>选择 AI 风格，上传简历，即刻生成</p>
+          <h2 className="text-2xl font-bold mb-2" style={{color:"#1e293b"}}>{t("home.modal.title")}</h2>
+          <p className="text-sm" style={{color:"#94a3b8"}}>{t("home.modal.subtitle")}</p>
         </div>
 
         {hasData ? (
           <div className="text-center">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm mb-6" style={{background:"rgba(13,148,136,0.08)",border:"1px solid rgba(13,148,136,0.15)",color:"#0f766e"}}>
               <span className="w-2 h-2 rounded-full animate-pulse" style={{background:"#14b8a6"}}/>
-              简历解析完成，数据已保存
+              {t("home.modal.parsed")}
             </div>
             <div className="flex gap-4 justify-center">
-              <Link href="/edit" onClick={onClose} className="px-6 py-3 rounded-lg text-white font-medium transition-all hover:-translate-y-0.5 hover:shadow-lg active:scale-95" style={{background:"#1e293b",minHeight:"48px",display:"inline-flex",alignItems:"center"}}>编辑信息</Link>
-              <Link href="/preview" onClick={onClose} className="px-6 py-3 rounded-lg font-medium transition-all hover:-translate-y-0.5 active:scale-95" style={{border:"1px solid #cbd5e1",color:"#475569",minHeight:"48px",display:"inline-flex",alignItems:"center"}}>预览主页</Link>
+              <Link href="/edit" onClick={onClose} className="px-6 py-3 rounded-lg text-white font-medium transition-all hover:-translate-y-0.5 hover:shadow-lg active:scale-95" style={{background:"#1e293b",minHeight:"48px",display:"inline-flex",alignItems:"center"}}>{t("home.modal.editInfo")}</Link>
+              <Link href="/preview" onClick={onClose} className="px-6 py-3 rounded-lg font-medium transition-all hover:-translate-y-0.5 active:scale-95" style={{border:"1px solid #cbd5e1",color:"#475569",minHeight:"48px",display:"inline-flex",alignItems:"center"}}>{t("home.modal.preview")}</Link>
             </div>
           </div>
         ) : (
@@ -195,7 +274,7 @@ function ResumeHistoryList({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="mt-8 pt-6 border-t" style={{borderColor:"#e2e8f0"}}>
-      <p className="text-xs font-medium mb-3" style={{color:"#94a3b8"}}>历史简历</p>
+      <p className="text-xs font-medium mb-3" style={{color:"#94a3b8"}}>{t("home.modal.history")}</p>
       <div className="space-y-2 max-h-40 overflow-y-auto">
         {resumeList.map((r) => (
           <button key={r.id} onClick={async () => {
@@ -227,11 +306,8 @@ function ScrollReveal({ children, className }: { children: React.ReactNode; clas
   return <div ref={ref} className={`transition-all duration-700 ${visible?"opacity-100 translate-y-0":"opacity-0 translate-y-8"} ${className||""}`}>{children}</div>;
 }
 
-const features = [
-  { icon: "📤", title: "上传即解析", desc: "拖拽 PDF/DOCX 简历文件，AI 自动提取并润色信息" },
-  { icon: "✏️", title: "自由编辑", desc: "检查 AI 润色结果，随时补充调整各模块内容" },
-  { icon: "🌐", title: "一键发布", desc: "生成现代设计个人主页，可部署至任意静态托管" },
-];
+const icons = ["📤", "✏️", "🌐"];
+const features = (tv("home.features") as { title: string; desc: string }[]).map((f, i) => ({ ...f, icon: icons[i] }));
 
 /* ── Page ── */
 export default function HomePage() {
@@ -241,7 +317,7 @@ export default function HomePage() {
     <>
       <Header transparent />
       <main className="bg-[#faf9f6]">
-        <HeroSection onStart={() => setModalOpen(true)} />
+        <HeroSection onStart={() => setModalOpen(true)} paused={modalOpen} />
 
         {/* Feature cards */}
         <div className="mx-auto max-w-4xl px-6 pb-24">

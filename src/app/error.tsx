@@ -1,5 +1,7 @@
 "use client";
 
+import { t } from "@/i18n";
+
 export default function ErrorPage({
   error,
   reset,
@@ -11,9 +13,9 @@ export default function ErrorPage({
     <div className="min-h-screen flex items-center justify-center bg-[#faf9f6] px-6">
       <div className="text-center max-w-sm">
         <div className="text-4xl mb-4">😞</div>
-        <h2 className="text-lg font-semibold text-[#1e293b] mb-2">出错了</h2>
+        <h2 className="text-lg font-semibold text-[#1e293b] mb-2">{t("states.error")}</h2>
         <p className="text-sm text-[#94a3b8] mb-6">
-          {error.message || "页面加载时发生了意外错误，请稍后重试。"}
+          {error.message || t("states.errorDefault")}
         </p>
         <button
           onClick={reset}
@@ -23,7 +25,7 @@ export default function ErrorPage({
             boxShadow: "0 4px 16px rgba(13,148,136,0.2)",
           }}
         >
-          重新加载
+          {t("states.retry")}
         </button>
       </div>
     </div>

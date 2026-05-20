@@ -1,3 +1,7 @@
+"use client";
+
+import { t } from "@/i18n";
+
 export default function Loading() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#faf9f6]">
@@ -6,7 +10,7 @@ export default function Loading() {
           <div className="absolute inset-0 rounded-full border-2 border-teal-100" />
           <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-teal-600 animate-spin" />
         </div>
-        <p className="text-sm text-[#94a3b8]">加载中…</p>
+        <p className="text-sm text-[#94a3b8]">{t("states.loading")}</p>
       </div>
     </div>
   );
